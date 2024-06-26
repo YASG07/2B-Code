@@ -1,0 +1,16 @@
+int x = 5
+float k = 1.2
+char c = ''
+string cad = ""
+bool v = true
+array[string] arr = ["a","b","1"]
+color c = (255,255,255)
+rect2 r = new rect2(vector2(0,0),vector2(100,200))
+vector2 vec = new vector2(50,10)
+resource res = {"src/app.png"}
+aabb cajaColision = new aabb()
+
+func correr(String x, int y ){
+   
+}
+
