@@ -46,7 +46,6 @@ public class ErrorToken {
             this.Column = var3.getFinalColumn();
         }
    
-
     }
     @Override
     public String toString() {
