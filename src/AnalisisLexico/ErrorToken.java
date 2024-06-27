@@ -45,6 +45,7 @@ public class ErrorToken {
             this.linea = var3.getFinalLine();
             this.Column = var3.getFinalColumn();
         }
+   
 
     }
     @Override

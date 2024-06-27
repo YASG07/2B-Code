@@ -1,15 +1,16 @@
 Class PolloFeliz {
-	int gente = 5
-	int pollos
-	String Asadero = "hola"
+    int gente
+    int pollos
+    int hola
+    String Asadero = 5
     for pollo in range 4{
-    	int a
+        int a
     }
     while (true){
      print("Reprobado")
-    	}
+        }
 
-    	func sumar(int a, int b) {
+        func sumar(int c, int b) {
      // Función que realiza la suma de dos números
       print("Reprobado")
 }

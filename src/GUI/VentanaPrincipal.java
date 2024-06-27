@@ -45,6 +45,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
 
@@ -53,13 +54,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
    public ArrayList<Token> ComponentesLexicos = null;
    public ArrayList<ErrorToken> errores = null;
+   private boolean lineaColumnaIni;
    public ArrayList<Production> indpro;
+   private HashMap<String, String> identificadores;
    private Directory directorio;
    int[] edad = {45,};
 
    public VentanaPrincipal() {
       initComponents();
        indpro = new ArrayList<>();
+       identificadores = new HashMap<>();
       setupTabTraversalKeys(panelContenedorPestañas);
       AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
       atmf.putMapping("text/myLanguage", "Colores.Color");
@@ -78,6 +82,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
       pantalla.setVisible(false);
    }
+   
+   public void initialLineColumn() {
+        this.lineaColumnaIni = true;
+    }
+   /**
+ * Activa la visualización de líneas y columnas de inicio.
+ */
+/**
+ * Desactiva la visualización de líneas y columnas de inicio.
+ */
+    public void finalLineColumn() {
+        this.lineaColumnaIni = false;
+    }
 
    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -949,12 +966,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
          analisisSintactico();
          analisisSemantico();
          mostrarErrores();
+         clearFields();
       } else {
          pantalla.hide();
          return;
       }
       return;
    }//GEN-LAST:event_compilationButtonActionPerformed
+   private void clearFields() {
+        if(indpro !=null)
+            indpro.clear();
+        identificadores.clear();
+       
+    }
 
    private void changeStyleViaThemeXml(RSyntaxTextArea textArea) {
       try {
@@ -1265,18 +1289,30 @@ public class VentanaPrincipal extends javax.swing.JFrame {
    }
    
     private void analisisSemantico() {
-        //HashMap<String, String> identDataType = new HashMap<>();
-        //identDataType.put("CadenaCaracteres", "String");
-        //identDataType.put("NumEntero", "int");
-        
+        HashMap<String, String> identDataType = new HashMap<>();
+        identDataType.put("CadenaCaracteres", "String");
+        identDataType.put("NumEntero", "int");
+        int i = 0;
         //errore de declaracion semantica
         for(Production id: indpro){
-          System.out.println(id.lexemeRank(0,-1));
-          System.out.println(id.lexicalCompRank(0,-1));
-           
+          //System.out.println(id.lexemeRank(0,-1));
+         // System.out.println(id.lexicalCompRank(0,-1));
             
+            if (!identificadores.containsKey(id.lexemeRank(1))){
+                identificadores.put(id.lexemeRank(1), id.lexicalCompRank(0));
+                i++;
+            }
+            else {
+                errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha sido declarado. ",identificadores.get(id.lexemeRank(0)),5,6));
+                System.out.println(identificadores.get(id.lexicalCompRank(0)));
+            }
+                //System.out.println("Error semántico: Ya existe un identificador llamado "+id.lexemeRank(1));
+            }
+
+        
             
-        }
+        
+        System.out.println(Arrays.asList(identificadores));
     }
     
    private void llenarTSIdentificadores() {
