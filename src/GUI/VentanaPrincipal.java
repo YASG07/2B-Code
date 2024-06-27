@@ -1294,25 +1294,22 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         identDataType.put("NumEntero", "int");
         int i = 0;
         //errore de declaracion semantica
+        //ERROR Semantico 6 ------------------------------------------
         for(Production id: indpro){
-          //System.out.println(id.lexemeRank(0,-1));
-         // System.out.println(id.lexicalCompRank(0,-1));
+          System.out.println(id.lexemeRank(0,-1));
+         System.out.println(id.lexicalCompRank(0,-1));
             
             if (!identificadores.containsKey(id.lexemeRank(1))){
                 identificadores.put(id.lexemeRank(1), id.lexicalCompRank(0));
                 i++;
             }
             else {
-                errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha sido declarado. ",identificadores.get(id.lexemeRank(0)),5,6));
-                System.out.println(identificadores.get(id.lexicalCompRank(0)));
+                errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha sido declarado. ",id.lexemeRank(1),5,6));
+                //System.out.println("Prueba "+id.lexemeRank(1));
+            } 
             }
-                //System.out.println("Error semántico: Ya existe un identificador llamado "+id.lexemeRank(1));
-            }
-
-        
-            
-        
         System.out.println(Arrays.asList(identificadores));
+        //-----------------------------------------------------------------
     }
     
    private void llenarTSIdentificadores() {
