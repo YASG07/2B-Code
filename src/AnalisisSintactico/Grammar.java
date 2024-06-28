@@ -42,7 +42,7 @@ public class Grammar {
         // Asignación de la lista de errores léxicos.
         this.errors = var2;
         // Mensajes de información.
-        String var3 = "RCB Compiler ";
+        String var3 = "2B'Scripts ";
         String var4 = "Gramática generada con éxito, se crearon " + this.producciones.size() + " producciones";
         String var5 = "Todos los componentes están listos para su ejecución";
         // Longitud del mensaje de información.

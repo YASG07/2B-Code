@@ -56,14 +56,24 @@ public class VentanaPrincipal extends javax.swing.JFrame {
    public ArrayList<ErrorToken> errores = null;
    private boolean lineaColumnaIni;
    public ArrayList<Production> indpro;
+   public ArrayList<Production> ciclofor;
+   public ArrayList<Production> fuera;
    private HashMap<String, String> identificadores;
+   private HashMap<String, String> NumEntero;
+   private HashMap<String, String> Fuera;
+   private ArrayList<Production> asigProdConID;
    private Directory directorio;
    int[] edad = {45,};
 
    public VentanaPrincipal() {
       initComponents();
        indpro = new ArrayList<>();
+       ciclofor =new ArrayList<>();
+       fuera =new ArrayList<>();
+       
        identificadores = new HashMap<>();
+       NumEntero = new HashMap<>();
+       Fuera = new HashMap<>();
       setupTabTraversalKeys(panelContenedorPestañas);
       AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
       atmf.putMapping("text/myLanguage", "Colores.Color");
@@ -1236,14 +1246,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
              gramatica.group("ERROR_IF", "( IF  PAREN_A CONDICION )",13,"Falta el parentesis de cierre ");
 //GRAMATICA DEL CICLO FOR EN RCBScript
 
-      gramatica.group("CICLO_FOR", "FOR Identificador IN RANGE (NumEntero | Identificador) LLAVE_A ((DECLARACION_VARIABLE | ERROR_DECVAR | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C");
-      gramatica.group("ERROR_CICLO_FOR", "Identificador IN RANGE (NumEntero | Identificador) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",70,"Falta palabra reservada FOR");
-      gramatica.group("ERROR_CICLO_FOR", "FOR IN RANGE (NumEntero | Identificador) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",70,"Falta el identificador del ciclo FOR");
-      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador RANGE (NumEntero | Identificador) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",71,"Falta la palabra reservada IN");
-      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN (NumEntero | Identificador) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",72,"Falta la palabra reservada RANGE");
+      gramatica.group("CICLO_FOR", "FOR Identificador IN RANGE (NumEntero ) LLAVE_A ((DECLARACION_VARIABLE | ERROR_DECVAR | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",ciclofor);
+      gramatica.group("ERROR_CICLO_FOR", "Identificador IN RANGE (NumEntero ) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",70,"Falta palabra reservada FOR");
+      gramatica.group("ERROR_CICLO_FOR", "FOR IN RANGE (NumEntero ) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",70,"Falta el identificador del ciclo FOR");
+      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador RANGE (NumEntero ) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",71,"Falta la palabra reservada IN");
+      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN (NumEntero) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",72,"Falta la palabra reservada RANGE");
       gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN RANGE LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",73,"Falta definir el rango del ciclo for");
-      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN RANGE (NumEntero | Identificador) ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",74,"Falta la llave de apertura del ciclo FOR");
-      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN RANGE (NumEntero | Identificador) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)?",75,"Falta la llave de cierre del ciclo For");
+      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN RANGE (NumEntero ) ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)? LLAVE_C",74,"Falta la llave de apertura del ciclo FOR");
+      gramatica.group("ERROR_CICLO_FOR", "FOR Identificador IN RANGE (NumEntero ) LLAVE_A ((DECLARACION_VARIABLE | CICLO_FOR | DECLARACION_FUNCION | CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+)?",75,"Falta la llave de cierre del ciclo For");
 
 //GRAMATICA DE UNA FUNCION EN RCBScript
 
@@ -1267,7 +1277,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 //GRAMATICA DE SENTENCIAS EN RCBScript
       gramatica.group("SENTENCIAS", "(DECLARACION_VARIABLE |  CICLO_FOR | DECLARACION_IF | ERROR_IF |ERROR_CICLO_FOR |ERROR_DECVAR | ERROR_WHILE | ERROR_DECLARACION_FUNCION |DECLARACION_FUNCION| CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+");            
 //GRAMATICA DE INICIO EN RCBScript
-      gramatica.group("INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C");            gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)?", 1, "Llave de cerrado de clase principal no detectada");
+      gramatica.group("INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C",fuera);        
+      gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)?", 1, "Llave de cerrado de clase principal no detectada");
             gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C", 1, "inicio ilegal no se declaró el identificador de la clase");
             gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS Identificador (EXTENDS)? LLAVE_A (SENTENCIAS)? LLAVE_C", 1, "No se indico la clase que se hereda");
             gramatica.group("ERROR_INICIO", "(IMPORT)? Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C", 1, "Inicio ilegal no se declaro la palabra reservada CLASS");
@@ -1289,15 +1300,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
    }
    
     private void analisisSemantico() {
-        HashMap<String, String> identDataType = new HashMap<>();
+       HashMap<String, String> identDataType = new HashMap<>();
         identDataType.put("CadenaCaracteres", "String");
         identDataType.put("NumEntero", "int");
+        identDataType.put("TRUE", "BOOLEAN");
+       identDataType.put("FALSE", "BOOLEAN");
         int i = 0;
         //errore de declaracion semantica
         //ERROR Semantico 6 ------------------------------------------
         for(Production id: indpro){
-          System.out.println(id.lexemeRank(0,-1));
-         System.out.println(id.lexicalCompRank(0,-1));
+         // System.out.println(id.lexemeRank(0,-1));
+        // System.out.println(id.lexicalCompRank(0,-1));
             
             if (!identificadores.containsKey(id.lexemeRank(1))){
                 identificadores.put(id.lexemeRank(1), id.lexicalCompRank(0));
@@ -1310,7 +1323,15 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         System.out.println(Arrays.asList(identificadores));
         //-----------------------------------------------------------------
+        //Rodolfo
+       for (Production id: indpro){
+           if (!identificadores.containsKey(id.lexemeRank(1))||!identificadores.containsKey(id.lexemeRank(0))){
+          errores.add(new ErrorToken(6,"Semantico",        "Error semántico: Variable no declarada.",id.lexemeRank(1),0,6));
+
+            }
+        }
     }
+   
     
    private void llenarTSIdentificadores() {
 

@@ -1,5 +1,3 @@
-
-//Cesar
 package AnalisisLexico;
 
 %%
@@ -37,7 +35,7 @@ CadCharNoCerrada         = ([\'][^\'\n]*[^\']?)
 Identificador = {LetraIni}({Letra}|{D})*
 NumFloat = [-+]?{D}(\.{D})
 NumEntero = [-+]?{D}+
-
+NumEnteroPos=[+]?{D}+
 
 //Rodolfo
 //Patrones para los errores
