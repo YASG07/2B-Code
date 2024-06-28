@@ -1311,25 +1311,33 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         for(Production id: indpro){
          // System.out.println(id.lexemeRank(0,-1));
         // System.out.println(id.lexicalCompRank(0,-1));
+            //System.out.println("Prueba "+id.lexemeRank(3));
             
             if (!identificadores.containsKey(id.lexemeRank(1))){
-                identificadores.put(id.lexemeRank(1), id.lexicalCompRank(0));
+                if(id.lexemeRank(3) !=  null){
+                    identificadores.put(id.lexemeRank(1), id.lexemeRank(0)+ ":"+ id.lexemeRank(3));
+                }//añade el identificador, tipo de dato y valor asignado
+                else{
+                    identificadores.put(id.lexemeRank(1), id.lexemeRank(0));
+                }//añade el identificador y tipo de dato
                 i++;
             }
             else {
-                errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha sido declarado. ",id.lexemeRank(1),5,6));
+                errores.add(new ErrorToken(6,"Semántico","Error semántico: El identificador o nombre de variable ya ha sido declarado. ",id.lexemeRank(1),5,6));
                 //System.out.println("Prueba "+id.lexemeRank(1));
             } 
-            }
+            if(i > 0){
+                String[] value = identificadores.get(id.lexemeRank(1)).split(":");
+                if(value.length > 1){
+                    if(!identificadores.containsKey(value[1]) && value[1].matches("[a-zA-Z][a-zA-Z0-9_]*") && !(value[1].equals("true") || value[1].equals("false"))){
+                        errores.add(new ErrorToken(3, "Semántico", "Error semántico: El identificador o nombre de variable debe ser declarado antes de usarse", value[1],id.getLine(),id.getColumn()));
+                    }
+                }
+                
+            }//recorrido de los identificadores guardados
+            }//for each llenado identificadores y comprobar error 6
         System.out.println(Arrays.asList(identificadores));
         //-----------------------------------------------------------------
-        //Rodolfo
-       for (Production id: indpro){
-           if (!identificadores.containsKey(id.lexemeRank(1))||!identificadores.containsKey(id.lexemeRank(0))){
-          errores.add(new ErrorToken(6,"Semantico",        "Error semántico: Variable no declarada.",id.lexemeRank(1),0,6));
-
-            }
-        }
     }
    
     
