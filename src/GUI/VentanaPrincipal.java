@@ -62,6 +62,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
    private HashMap<String, String> NumEntero;
    private HashMap<String, String> Fuera;
    private ArrayList<Production> asigProdConID;
+   public ArrayList<Production> Clas1;
+   private HashMap<String, String> Class;
    private Directory directorio;
    int[] edad = {45,};
 
@@ -70,7 +72,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
        indpro = new ArrayList<>();
        ciclofor =new ArrayList<>();
        fuera =new ArrayList<>();
-       
+       Clas1 =new ArrayList<>();
+       Class =new HashMap<>();
        identificadores = new HashMap<>();
        NumEntero = new HashMap<>();
        Fuera = new HashMap<>();
@@ -987,6 +990,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         if(indpro !=null)
             indpro.clear();
         identificadores.clear();
+        if(Clas1 !=null)
+            Clas1.clear();
+        Class.clear();
        
     }
 
@@ -1277,7 +1283,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 //GRAMATICA DE SENTENCIAS EN RCBScript
       gramatica.group("SENTENCIAS", "(DECLARACION_VARIABLE |  CICLO_FOR | DECLARACION_IF | ERROR_IF |ERROR_CICLO_FOR |ERROR_DECVAR | ERROR_WHILE | ERROR_DECLARACION_FUNCION |DECLARACION_FUNCION| CICLO_WHILE | DECLARACION_IF | DECLARACION_PRINT | ASIG_VARIABLE)+");            
 //GRAMATICA DE INICIO EN RCBScript
-      gramatica.group("INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C",fuera);        
+      gramatica.group("INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C",Clas1);        
       gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS Identificador (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)?", 1, "Llave de cerrado de clase principal no detectada");
             gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS (EXTENDS Identificador)? LLAVE_A (SENTENCIAS)? LLAVE_C", 1, "inicio ilegal no se declaró el identificador de la clase");
             gramatica.group("ERROR_INICIO", "(IMPORT)? CLASS Identificador (EXTENDS)? LLAVE_A (SENTENCIAS)? LLAVE_C", 1, "No se indico la clase que se hereda");
@@ -1311,25 +1317,35 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         for(Production id: indpro){
          // System.out.println(id.lexemeRank(0,-1));
         // System.out.println(id.lexicalCompRank(0,-1));
-            
+
             if (!identificadores.containsKey(id.lexemeRank(1))){
                 identificadores.put(id.lexemeRank(1), id.lexicalCompRank(0));
                 i++;
             }
             else {
-                errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha sido declarado. ",id.lexemeRank(1),5,6));
+                errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha"
+                        + " sido declarado. ",id.lexemeRank(1),5,6));
                 //System.out.println("Prueba "+id.lexemeRank(1));
             } 
             }
         System.out.println(Arrays.asList(identificadores));
         //-----------------------------------------------------------------
-        //Rodolfo
-       for (Production id: indpro){
-           if (!identificadores.containsKey(id.lexemeRank(1))||!identificadores.containsKey(id.lexemeRank(0))){
-          errores.add(new ErrorToken(6,"Semantico",        "Error semántico: Variable no declarada.",id.lexemeRank(1),0,6));
+      //Rodolfo
+     for(Production id: Clas1){
+         // System.out.println(id.lexemeRank(0,-1));
+        // System.out.println(id.lexicalCompRank(0,-1));
 
+            if (!Class.containsKey(id.lexemeRank(1))){
+                Class.put(id.lexemeRank(1), id.lexicalCompRank(0));
             }
-        }
+            else {
+                errores.add(new ErrorToken(19,"Semantico","Error semántico: Clase ya definida"
+                        ,id.lexemeRank(1),5,6));
+                //System.out.println("Prueba "+id.lexemeRank(1));
+            } 
+            }
+        System.out.println(Arrays.asList(Class));
+
     }
    
     
