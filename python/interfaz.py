@@ -88,10 +88,10 @@ class TextEditor:
         self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
 
         # Área de texto
-        self.text_area = tk.Text(self.text_area_frame, undo=True, bg="#001f3f", fg="white", bd=0, padx=5, pady=5, insertbackground="white", yscrollcommand=self.on_scroll)
+        self.text_area = tk.Text(self.text_area_frame, undo=True, bd=0, padx=5, pady=5, bg="#001f3f",fg="white",insertbackground="white", yscrollcommand=self.on_scroll)
         self.text_area.pack(fill=tk.BOTH, expand=1)
         self.scrollbar.config(command=self.on_scroll)
-        self.text_area.bind('<KeyRelease>', self.update_line_numbers)
+        self.text_area.bind('<KeyRelease>', self.on_key_release)
         self.text_area.bind('<MouseWheel>', self.update_line_numbers)
 
         # Área de consola
@@ -112,8 +112,7 @@ class TextEditor:
         root.bind('<Control-y>', lambda event: self.edit_redo())
 
         self.update_line_numbers()
-        
-       
+        self._create_tags()
 
     def new_file(self):
         self.file_path = None
@@ -188,7 +187,8 @@ class TextEditor:
     def compile_code(self):
         # Lógica para compilar el código
         self.console_area.config(state='normal')
-        self.console_area.insert(tk.END, "Compilación realizada correctamente.\n")
+        
+        self.console_area.insert(tk.END, self.text_area.get("1.0", tk.END).strip())
         self.console_area.config(state='disabled')
 
     def change_font(self):
@@ -252,21 +252,18 @@ class TextEditor:
 
         accept_button = Button(color_window, text="Aceptar", command=on_select)
         accept_button.pack()
+
     #----------------------COLORES PALABRAS RESERVADAS------------------------------------------
-        # Asignar eventos a los widgets de texto
-        self.text_area_frame.bind("<KeyRelease>", self.on_key_release)
-#        self.text_widget.bind('<Key>', self._on_text_change)  # Asigna el evento Key (tecla) al método _on_text_change
-        self._create_tags()
-          
     def _create_tags(self):
         # Crear etiquetas para los tokens y las palabras reservadas
-            self.text_area.tag_configure("TOKENS", fg="lime green")
-            self.text_area.tag_configure("RESERVADAS", foreground="red")
-            self.text_area.tag_configure("SYMBOL", foreground="orange")
-            self.text_area.tag_configure("COMMENT", foreground="gray52")
+        self.text_area.tag_configure("TOKENS", foreground="lime green")
+        self.text_area.tag_configure("RESERVADAS", foreground="red")
+        self.text_area.tag_configure("SYMBOL", foreground="orange")
+        self.text_area.tag_configure("COMMENT", foreground="gray52")
 
     def on_key_release(self, event):
-            self.highlight_code()
+        self.update_line_numbers()
+        self.highlight_code()
 
     def highlight_code(self):
         code = self.text_area.get("1.0", tk.END)
@@ -332,14 +329,8 @@ class TextEditor:
                 end_index = f"{end_index}+2c"  # Incluir los caracteres '->' en el resaltado
             self.text_area.tag_add("COMMENT", start_index, end_index)
             start_index = end_index
-#------------------------------------------------------------------------------------------------------
-
-      
+     #----------------------COLORES PALABRAS RESERVADAS------------------------------------------
 if __name__ == "__main__":
     root = tk.Tk()
     editor = TextEditor(root)
-    
     root.mainloop()
-    
-
-

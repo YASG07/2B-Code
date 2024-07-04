@@ -21,7 +21,7 @@ class ScrollTextWithLineNumbers(Frame):
         self.line_numbers.pack(side='left', fill='y')  # Empaqueta el widget en el lado izquierdo y lo hace llenar en la dirección y
 
         # Crear el widget de texto desplazable
-        self.text_widget = ScrolledText(self, width=105, height=10)
+        self.text_widget = ScrolledText(self, width=105, height=10, bg="#001f3f",fg="white")
         self.text_widget.pack(side='left', fill='both', expand=True)  # Empaqueta el widget en el lado izquierdo y lo hace llenar en ambas direcciones y expandir su tamaño
 
         # Crear la barra de desplazamiento
