@@ -88,7 +88,8 @@ class TextEditor:
         self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
 
         # Área de texto
-        self.text_area = tk.Text(self.text_area_frame, undo=True, bd=0, padx=5, pady=5, bg="#001f3f",fg="white",insertbackground="white", yscrollcommand=self.on_scroll)
+        self.text_area = tk.Text(self.text_area_frame, undo=True, bd=0, padx=5, pady=5, bg="#001f3f", 
+                                 fg="white",insertbackground="white", yscrollcommand=self.on_scroll)
         self.text_area.pack(fill=tk.BOTH, expand=1)
         self.scrollbar.config(command=self.on_scroll)
         self.text_area.bind('<KeyRelease>', self.on_key_release)
@@ -112,7 +113,7 @@ class TextEditor:
         root.bind('<Control-y>', lambda event: self.edit_redo())
 
         self.update_line_numbers()
-        self._create_tags()
+        self._token_colores()
 
     def new_file(self):
         self.file_path = None
@@ -181,7 +182,7 @@ class TextEditor:
         self.line_numbers.config(state='disabled')
 
     def on_scroll(self, *args):
-        self.text_area.yview(*args)
+        #self.text_area.yview(*args)
         self.line_numbers.yview(*args)
 
     def compile_code(self):
@@ -192,9 +193,9 @@ class TextEditor:
         self.console_area.config(state='disabled')
 
     def change_font(self):
-        fonts = ["Arial", "Calibri", "Times New Roman", "Comic Sans MS"]
+        fonts = ["Arial", "Calibri", "Consolas", "Bahnschrift"]
         font_window = Toplevel(self.root)
-        font_window.title("Cambiar Fuente")
+        font_window.title("Fuente cambiada ")
         font_window.geometry("200x200")
 
         listbox = Listbox(font_window)
@@ -225,6 +226,8 @@ class TextEditor:
         font_size = simpledialog.askinteger("Cambiar Tamaño de Fuente", "Elige un tamaño de fuente:")
         if font_size:
             self.text_area.config(font=(self.text_area.cget("font").split()[0], font_size))
+            self.text_areas.resizable(False,False)
+
 
     def change_bg_color(self):
         colors = {"Blanco": "#FFFFFF", "Negro": "#000000", "Azul": "#001f3f"}
@@ -254,7 +257,7 @@ class TextEditor:
         accept_button.pack()
 
     #----------------------COLORES PALABRAS RESERVADAS------------------------------------------
-    def _create_tags(self):
+    def _token_colores(self):
         # Crear etiquetas para los tokens y las palabras reservadas
         self.text_area.tag_configure("TOKENS", foreground="lime green")
         self.text_area.tag_configure("RESERVADAS", foreground="red")
@@ -265,6 +268,8 @@ class TextEditor:
         self.update_line_numbers()
         self.highlight_code()
 
+       
+      
     def highlight_code(self):
         code = self.text_area.get("1.0", tk.END)
         self.text_area.mark_set("range_start", "1.0")
