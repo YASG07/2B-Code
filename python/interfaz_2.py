@@ -47,7 +47,7 @@ class ScrollTextWithLineNumbers(Frame):
 
     def _create_tags(self):
         # Crear etiquetas para los tokens y las palabras reservadas 
-        self.text_widget.tag_configure("TOKEN", foreground="lime green")
+        self.text_widget.tag_configure("TOKENS", foreground="lime green")
         self.text_widget.tag_configure("RESERVADAS", foreground="red")
         self.text_widget.tag_configure("SYMBOL", foreground="orange")
         self.text_widget.tag_configure("COMMENT", foreground="gray52")
@@ -80,7 +80,7 @@ class ScrollTextWithLineNumbers(Frame):
             for match in regex.finditer(code):
                 start_index = f"1.0 + {match.start()}c"
                 end_index = f"1.0 + {match.end()}c"
-                self.text_widget.tag_add("TOKEN", start_index, end_index)
+                self.text_widget.tag_add("TOKENS", start_index, end_index)
 
         # Resaltar símbolos
         symbols = [r'\{', r'\}', r'\(', r'\)', r'\[', r'\]']
@@ -302,6 +302,7 @@ def tablaEstatica():
     # Empaquetar los widgets
     scrollbar.pack(side="right", fill="y")
     table.pack(fill="both", expand=True)
+    
 
 def AbrirArchivos():
     filename = filedialog.askopenfilename(initialdir="/",

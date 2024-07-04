@@ -1,9 +1,7 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog, colorchooser, Toplevel, Listbox, Button
-
-from tkinter.scrolledtext import ScrolledText
+from tkinter import filedialog, simpledialog, colorchooser, Toplevel, Listbox, Button
 from lexico import tokens, reservadas
-
+import re
 
 class TextEditor:
 
@@ -17,7 +15,7 @@ class TextEditor:
         self.top_frame.pack(side=tk.TOP, fill=tk.X)
 
         # Botón Compilar
-        self.compile_button = tk.Button(self.top_frame, text="Compilar", command=self.analisisLexico, bg="#FFA500")
+        self.compile_button = tk.Button(self.top_frame, text="Compilar", command=self.compile_code, bg="#FFA500")
         self.compile_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
         # Menú Archivo
@@ -50,7 +48,7 @@ class TextEditor:
         self.format_menu = tk.Menu(self.format_menu_button, tearoff=0, bg="#FFA500", fg="black")
         self.format_menu.add_command(label="Cambiar Fuente", command=self.change_font)
         self.format_menu.add_command(label="Cambiar Tamaño de Fuente", command=self.change_font_size)
-        self.format_menu.add_command(label="Cambiar Color de Texto", command=self.change_text_color)
+        self.format_menu.add_command(label="Cambiar Color de Fondo", command=self.change_bg_color)
         self.format_menu_button.config(menu=self.format_menu)
         self.format_menu_button.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -74,9 +72,13 @@ class TextEditor:
         self.text_frame = tk.Frame(self.canvas, bg="black", bd=5)
         self.text_frame.pack(fill=tk.BOTH, expand=1, padx=5, pady=5)
 
+        # Área de texto y consola divididas en una proporción 3:1
+        self.text_and_console_frame = tk.Frame(self.text_frame, bg="#001f3f")
+        self.text_and_console_frame.pack(fill=tk.BOTH, expand=1)
+
         # Área de texto con scrollbar
-        self.text_area_frame = tk.Frame(self.text_frame, bg="#001f3f")
-        self.text_area_frame.pack(fill=tk.BOTH, expand=1)
+        self.text_area_frame = tk.Frame(self.text_and_console_frame, bg="#001f3f")
+        self.text_area_frame.pack(fill=tk.BOTH, expand=1, side=tk.TOP)
 
         self.scrollbar = tk.Scrollbar(self.text_area_frame)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -92,6 +94,10 @@ class TextEditor:
         self.text_area.bind('<KeyRelease>', self.update_line_numbers)
         self.text_area.bind('<MouseWheel>', self.update_line_numbers)
 
+        # Área de consola
+        self.console_area = tk.Text(self.text_and_console_frame, height=5, bg="white", fg="black", bd=0, padx=5, pady=5, state='disabled')
+        self.console_area.pack(fill=tk.X, side=tk.BOTTOM)
+
         # Atajos de teclado
         root.bind('<Control-n>', lambda event: self.new_file())
         root.bind('<Control-o>', lambda event: self.open_file())
@@ -106,6 +112,8 @@ class TextEditor:
         root.bind('<Control-y>', lambda event: self.edit_redo())
 
         self.update_line_numbers()
+        
+       
 
     def new_file(self):
         self.file_path = None
@@ -176,11 +184,12 @@ class TextEditor:
     def on_scroll(self, *args):
         self.text_area.yview(*args)
         self.line_numbers.yview(*args)
-        self.update_line_numbers()
 
     def compile_code(self):
         # Lógica para compilar el código
-        messagebox.showinfo("Compilar", "Compilación realizada correctamente.")
+        self.console_area.config(state='normal')
+        self.console_area.insert(tk.END, "Compilación realizada correctamente.\n")
+        self.console_area.config(state='disabled')
 
     def change_font(self):
         fonts = ["Arial", "Calibri", "Times New Roman", "Comic Sans MS"]
@@ -207,7 +216,7 @@ class TextEditor:
                 self.text_area.config(font=(selected_font,))
             font_window.destroy()
 
-        listbox.bind('<<ListboxSelect>>', lambda event: on_select())
+        listbox.bind('<<ListboxSelect>>', lambda event: None)
 
         accept_button = Button(font_window, text="Aceptar", command=on_select)
         accept_button.pack()
@@ -217,31 +226,120 @@ class TextEditor:
         if font_size:
             self.text_area.config(font=(self.text_area.cget("font").split()[0], font_size))
 
-    def change_text_color(self):
-        color_code = colorchooser.askcolor(title="Elige un color de texto")[1]
-        if color_code:
-            self.text_area.config(fg=color_code)
-    def analisisLexico():
-        #scrollAnalisis.config(state="normal")  # Cambiar el estado a normal para permitir la edición
-        #scrollAnalisis.delete(1.0, END)  # Borra el contenido actual del `ScrolledText`
-        #scrollAnalisis.config(state="disabled")  # Volver a deshabilitar la edición    
-        cadena = TextEditor.text_area.get_text()
-        if len(cadena) > 0:
-            #lexer.input(cadena)
-            a_tok = []
-            for tok in lexer:
-                a_tok.append((tok.type, tok.value, tok.lineno, tok.lexpos))
-            #imprimir_errores()
-            #mostrarAnalisisLexico2(a_tok)
-            # Imprimir la tabla de errores en scrollAnalisis
-        else:
-            messagebox.showwarning("ERROR", "Debes escribir código")
-        #lexer.lineno=1
-    
-    #scrollAnalisis = ScrolledText(root, width=100,  height=8, font = change_font, state="disable")
-    #scrollAnalisis.grid(row=5,column=0,padx=10,pady=10)
+    def change_bg_color(self):
+        colors = {"Blanco": "#FFFFFF", "Negro": "#000000", "Azul": "#001f3f"}
+        color_window = Toplevel(self.root)
+        color_window.title("Cambiar Color de Fondo")
+        color_window.geometry("200x200")
+
+        listbox = Listbox(color_window)
+        listbox.pack(fill=tk.BOTH, expand=1)
+
+        for color_name in colors.keys():
+            listbox.insert(tk.END, color_name)
+
+        def on_select():
+            selected_color_name = listbox.get(listbox.curselection())
+            selected_color_code = colors[selected_color_name]
+            self.text_area.config(bg=selected_color_code)
+            if selected_color_code == "#FFFFFF":
+                self.text_area.config(fg="black", insertbackground="black")
+            else:
+                self.text_area.config(fg="white", insertbackground="white")
+            color_window.destroy()
+
+        listbox.bind('<<ListboxSelect>>', lambda event: None)
+
+        accept_button = Button(color_window, text="Aceptar", command=on_select)
+        accept_button.pack()
+    #----------------------COLORES PALABRAS RESERVADAS------------------------------------------
+        # Asignar eventos a los widgets de texto
+        self.text_area_frame.bind("<KeyRelease>", self.on_key_release)
+#        self.text_widget.bind('<Key>', self._on_text_change)  # Asigna el evento Key (tecla) al método _on_text_change
+        self._create_tags()
+          
+    def _create_tags(self):
+        # Crear etiquetas para los tokens y las palabras reservadas
+            self.text_area.tag_configure("TOKENS", fg="lime green")
+            self.text_area.tag_configure("RESERVADAS", foreground="red")
+            self.text_area.tag_configure("SYMBOL", foreground="orange")
+            self.text_area.tag_configure("COMMENT", foreground="gray52")
+
+    def on_key_release(self, event):
+            self.highlight_code()
+
+    def highlight_code(self):
+        code = self.text_area.get("1.0", tk.END)
+        self.text_area.mark_set("range_start", "1.0")
+
+        # Eliminar todas las etiquetas previas
+        for tag in self.text_area.tag_names():
+            self.text_area.tag_remove(tag, "1.0", tk.END)
+
+        # Resaltar palabras reservadas (insensible a mayúsculas/minúsculas)
+        for word in reservadas:
+            start_index = "1.0"
+            while True:
+                start_index = self.text_area.search(r'(?i)\b' + re.escape(word) + r'\b', start_index, tk.END, regexp=True)
+                if not start_index:
+                    break
+                end_index = f"{start_index}+{len(word)}c"
+                self.text_area.tag_add("RESERVADAS", start_index, end_index)
+                start_index = end_index
+
+        # Resaltar tokens (insensible a mayúsculas/minúsculas)
+        for pattern in tokens:
+            regex = re.compile(r'(?i)\b' + pattern + r'\b')
+            for match in regex.finditer(code):
+                start_index = f"1.0 + {match.start()}c"
+                end_index = f"1.0 + {match.end()}c"
+                self.text_area.tag_add("TOKENS", start_index, end_index)
+
+        # Resaltar símbolos
+        symbols = [r'\{', r'\}', r'\(', r'\)', r'\[', r'\]']
+        for symbol in symbols:
+            start_index = "1.0"
+            while True:
+                start_index = self.text_area.search(symbol, start_index, tk.END, regexp=True)
+                if not start_index:
+                    break
+                end_index = f"{start_index}+1c"
+                self.text_area.tag_add("SYMBOL", start_index, end_index)
+                start_index = end_index
+
+        # Resaltar comentarios de una sola línea
+        start_index = "1.0"
+        while True:
+            start_index = self.text_area.search(';', start_index, tk.END)
+            if not start_index:
+                break
+            end_index = self.text_area.search('\n', start_index, tk.END)
+            if not end_index:
+                end_index = tk.END
+            self.text_area.tag_add("COMMENT", start_index, end_index)
+            start_index = end_index
+
+        # Resaltar comentarios de múltiples líneas
+        start_index = "1.0"
+        while True:
+            start_index = self.text_area.search(r'<-', start_index, tk.END)
+            if not start_index:
+                break
+            end_index = self.text_area.search(r'->', start_index, tk.END)
+            if not end_index:
+                end_index = tk.END
+            else:
+                end_index = f"{end_index}+2c"  # Incluir los caracteres '->' en el resaltado
+            self.text_area.tag_add("COMMENT", start_index, end_index)
+            start_index = end_index
+#------------------------------------------------------------------------------------------------------
+
+      
 if __name__ == "__main__":
     root = tk.Tk()
-    TextEditor(root)
+    editor = TextEditor(root)
+    
     root.mainloop()
+    
+
 
