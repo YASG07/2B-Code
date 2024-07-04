@@ -1309,8 +1309,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
        HashMap<String, String> identDataType = new HashMap<>();
         identDataType.put("CadenaCaracteres", "String");
         identDataType.put("NumEntero", "int");
-        identDataType.put("TRUE", "BOOLEAN");
-       identDataType.put("FALSE", "BOOLEAN");
+        identDataType.put("TRUE", "bool");
+       identDataType.put("FALSE", "bool");
         int i = 0;
         //errore de declaracion semantica
         //ERROR Semantico 6 ------------------------------------------
@@ -1330,7 +1330,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
             else {
                 errores.add(new ErrorToken(6,"Semantico","Error semántico: El identificador o nombre de variable ya ha"
-                        + " sido declarado. ",id.lexemeRank(1),5,6));
+                        + " sido declarado. ",id.lexemeRank(1),id.getLine(),id.getColumn()));
                 //System.out.println("Prueba "+id.lexemeRank(1));
             } 
             if(i > 0){
@@ -1339,11 +1339,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     if(!identificadores.containsKey(value[1]) && value[1].matches("[a-zA-Z][a-zA-Z0-9_]*") && !(value[1].equals("true") || value[1].equals("false"))){
                         errores.add(new ErrorToken(3, "Semántico", "Error semántico: El identificador o nombre de variable debe ser declarado antes de usarse", value[1],id.getLine(),id.getColumn()));
                     }
+               /* if (!identificadores.get(id.lexemeRank(1)).equals(identDataType.get(id.lexicalCompRank(3)))){
+                    errores.add(new ErrorToken(1,"Semantico","Error semántico : El tipo de dato asignado a la variable no corresponde con el tipo de dato de la variable.",id.lexemeRank(1),id.getLine(),id.getColumn()));
+                    System.out.println(identDataType.get(id.lexicalCompRank(3)));
+                }*/
                 }
                 
             }//recorrido de los identificadores guardados
             }//for each llenado identificadores y comprobar error 6
         System.out.println(Arrays.asList(identificadores));
+        
         //-----------------------------------------------------------------
       //Rodolfo
      for(Production id: Clas1){
