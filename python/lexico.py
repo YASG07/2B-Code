@@ -32,6 +32,7 @@ def agregarError(indice, tipo, descripcion, valor, linea, columna):
         'Columna': columna
     })
 
+#lista de token validos para el lenguaje
 tokens = [
     'if',
     'else',
@@ -81,6 +82,7 @@ tokens = [
     'FIN_LINEA',
 ]
 
+#palabras reservadas
 reservadas = {
     'if':'if',
     'else':'else',
@@ -97,6 +99,7 @@ reservadas = {
     'bool':'bool',
 }
 
+#expresiones regulares para validar simbolos
 t_PLUS = r'\+'
 t_MINUS = r'\-'  
 t_TIMES = r'\*'
@@ -124,12 +127,15 @@ t_NOT = r'!'
 t_OR = r'\|\|'
 t_CADENA = r'(\"([^\\\n]|(\\.))*?\"|\'([^\\\n]|(\\.))*?\')'
 
+#ignora espacios en blanco
 t_ignore = ' \t'
 
+#aumenta el contador de lineas de código
 def t_newline(token):
     r'\n+'
     token.lexer.lineno += len(token.value)
 
+#funcion para validar decimales
 def t_DECIMAL(token):
     r'\d+\.\d+'
     token.value = float(token.value)
@@ -141,6 +147,7 @@ def t_DECIMAL(token):
     }
     return token
 
+#funcion para validar enteros
 def t_NUMBER(token):
     r'\d+'
     token.value = int(token.value)
@@ -152,6 +159,7 @@ def t_NUMBER(token):
     }
     return token
 
+#funcion para validar booleanos
 def t_BOOLEAN(token):
     r'(true|false)'
     token.value = True if token.value.lower() == 'valor' else False
@@ -163,6 +171,7 @@ def t_BOOLEAN(token):
     }
     return token
 
+#funcion para validar identificadores
 def t_ID(token):
     r'[a-zA-Z][a-zA-Z0-9_]*'
     if token.value in reservadas:
@@ -179,11 +188,13 @@ def t_ID(token):
                     'Columna': obtenerColumna(token.lexer.lexdata, token),
                 }
     return token
-            
+
+#funcion para reconocer comentarios    
 def t_COMENTARIOS(token):
     r'(//|\#).*'
     pass
 
+#funcion para reconocer comentarios multilinea
 def t_COMENTARIOS_MULTILINEA(token):
     r'<\-(?:[^-]|-(?!>))*\->'
     pass
@@ -192,4 +203,29 @@ def t_FIN_LINEA(token):
     r'\n'
     return token
 
+#Manejo de errores lexicos
+def t_error_ID(token):
+    r'\d+[a-zA-Z][a-zA-Z0-9_]*'
+    agregarError(1, 'Léxico', 'Identificador inválido', token.value, token.lineno, obtenerColumna(token.lexer.lexdata, token))
+    token.lexer.skip(len(token.value))
+    #identificador invalido
+
+def t_error_NUMBER(token):
+    r'[+-]{2,}\d+'
+    agregarError(2, 'Léxico', 'Formato de número entero no válido', token.value, token.lineno, obtenerColumna(token.lexer.lexdata, token))
+    token.lexer.skip(len(token.value))
+    #formato invalido para numero entero
+
+def t_error_DECIMAL(token):
+    r'\d+([\.]{2,}\d+[\.|\d]*)+ | \d+\.\d+(\.+\d+)+ | \.+\d+(\.|\d)* | (\d?\.\.\d)+ | \d+\.(?!\d)'
+    agregarError(3, 'Léxico', 'Formato de número decimal inválido', token.value, token.lineno, obtenerColumna(token.lexer.lexdata, token))
+    token.lexer.skip(len(token.value))
+    #formato de número decimal invalido
+
+def t_error(token):
+    agregarError(0, 'Léxico', 'Cáracter no reconocido', token.value, token.lineno, obtenerColumna(token.lexer.lexdata, token))
+    token.lexer.skip(1)
+
+
+#construye el analizador lexico posiblemente se tenga que comentar
 analizador = lex.lex()
