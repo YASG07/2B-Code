@@ -249,7 +249,7 @@ def analisisLexico():
         mb.showwarning("ERROR", "Debes escribir código")
     analizador.lineno=1
 
-#----------------------------------------------------------------------Funciones lexico sintactico en un solo boton----------
+#--------------------------------------Boton de compilar----------------------------------
 def analisisCompleto(resul=None):
     # Obtener el texto del widget
     cadena = scroll_text_widget.get_text()
@@ -279,7 +279,7 @@ def analisisCompleto(resul=None):
         try:
             resultado = parse.parse(cadena)
             print(resultado)
-            mostrarAnalisisSintactico2(a_tok)
+            mostrarAnalisisSintactico2(resultado)
             scrollAnalisis.insert(END, "Análisis Sintáctico Correcto\n")
         
         except yacc.YaccError as e:
