@@ -19,7 +19,8 @@ def obtenerColumna(input, token, n):
     if column == 0:
         return 1 
     return column
-
+def obtener_errores_sintactico():
+    return tablaErrores
 #gramatica para definir un programa
 def p_programa(prod):
     '''
@@ -72,16 +73,17 @@ def p_auxiliarBloque(prod):
               | cicloWhile
               | si
               | funcion
+              | imprimir
     '''
     prod[0] = prod[1]
 
 #declaracion de variables
 def p_declaracion(prod):
     '''
-    declaracion : tipoDato ID ASSIGN expresion FIN_LINEA
-                | tipoDato ID ASSIGN BOOLEAN FIN_LINEA
-                | tipoDato ID ASSIGN CADENA FIN_LINEA
-                | tipoDato ID FIN_LINEA
+    declaracion : tipoDato ID ASSIGN expresion
+                | tipoDato ID ASSIGN BOOLEAN 
+                | tipoDato ID ASSIGN CADENA 
+                | tipoDato ID 
     '''
     if prod[2] not in tablaSimbolos:
         if len(prod) == 6:
@@ -198,11 +200,18 @@ def p_parametros(prod):
     parametros : parametros COMMA tipoDato ID
                | tipoDato ID 
     '''
+def p_imprimir(prod):
+    '''
+    imprimir : print LPARENT CADENA RPARENT
+               
+    '''
 
 #manejo de errores
 def p_error(prod):
     if not prod:
         agregarError(0, 'Sintactico', 'Programa inválido', prod.value, prod.lineno, obtenerColumna(prod.lexer.lexdata, prod, 0))
-    
+        
 
-analizador = yacc.yacc()
+parse = yacc.yacc()
+print(tablaErrores)
+
