@@ -252,7 +252,7 @@ yacc.errorlog = yacc.NullLogger()
 src = '''
 Class PolloFeliz {
  int a = 5$
- 
+ a = 0$
 }
 Class Pollo {
 }
