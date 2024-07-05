@@ -210,7 +210,8 @@ def p_imprimir(prod):
 def p_error(prod):
     if not prod:
         agregarError(0, 'Sintactico', 'Programa inválido', prod.value, prod.lineno, obtenerColumna(prod.lexer.lexdata, prod, 0))
-        
+
+yacc.errorlog = yacc.NullLogger()        
 
 parse = yacc.yacc()
 print(tablaErrores)

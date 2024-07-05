@@ -43,7 +43,7 @@ class ScrollTextWithLineNumbers(Frame):
         # Actualizar los números de línea
         self._update_line_numbers()
 
-#Intento de resaltar palabras en azul ---------------------------------------------------------------- 
+# ---------------------------COLORES------------------------------------- 
         self._create_tags()
 
     def _create_tags(self):
@@ -268,16 +268,18 @@ def analisisCompleto(resul=None):
             a_tok.append((tok.type, tok.value, tok.lineno, tok.lexpos))
         
         mostrarAnalisisLexico2(a_tok)
+
         #mostrarAnalisisSintactico2(a_tok)
         # Mostrar errores léxicos si existen
         imprimir_errores()
         #imprimir_errores_semanticos()
         
         # Análisis sintáctico
-        tablaErrores.clear()
+        #tablaErrores.clear()
         try:
             resultado = parse.parse(cadena)
-            mostrarAnalisisSintactico2(resultado)
+            print(resultado)
+            mostrarAnalisisSintactico2(a_tok)
             scrollAnalisis.insert(END, "Análisis Sintáctico Correcto\n")
         
         except yacc.YaccError as e:
@@ -491,7 +493,7 @@ font_menu.add_command(label="20", command=lambda: cambiar_tamaño_letra(20))
 
 
 menubar.add_cascade(label="Tamaño de la letra", menu=font_menu)
-menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON LEXICO SINTACTICO 
+menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON 
 
 root.config(menu=menubar)
 root.mainloop()
