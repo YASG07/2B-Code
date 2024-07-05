@@ -9,7 +9,7 @@ def reiniciarAnalizadorLex(lexer):
     lexer.lineno = 1
     lexer.lexpos = 0
 
-def obtenerErroresLexicos():
+def obtenerErrores():
     global tablaErrores
     return tablaErrores
 
@@ -22,12 +22,12 @@ def obtenerColumna(input, token):
         return 1
     return columna
 
-def agregarErrorLex(indice, tipo, descripcion, valor, linea, columna):
+def agregarError(indice, tipo, descripcion, valor, linea, columna):
     tablaErrores.append({
         'Indice': indice,
         'Tipo': tipo,
         'Descripción': descripcion,
-        'Valor': valor,
+        'Valor': str(valor),
         'Línea': linea,
         'Columna': columna
     })
@@ -40,16 +40,17 @@ tokens = [
     'in',
     'range',
     'Class',
+    'func',
     'int',
     'float',
     'String',
     'char',
+    'bool',
     'PLUS',
     'MINUS',
     'TIMES',
     'DIVIDE',
-    'LT',
-    'GT',
+    'MOD',
     'LPARENT',
     'RPARENT',
     'LKEY',
@@ -63,6 +64,8 @@ tokens = [
     'MINUSEQUAL',
     'EQUALS',
     'NE',
+    'LT',
+    'GT',
     'LTE',
     'GTE',
     'AND',
@@ -81,20 +84,24 @@ tokens = [
 reservadas = {
     'if':'if',
     'else':'else',
+    'while':'while',
     'for':'for',
     'in':'in',
     'range':'range',
     'Class':'Class',
+    'func':'func',
     'int':'int',
     'float':'float',
     'String':'String',
     'char':'char',
+    'bool':'bool',
 }
 
 t_PLUS = r'\+'
 t_MINUS = r'\-'  
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
+t_MOD = r'%'
 t_LT = r'<'
 t_GT = r'>'
 t_LPARENT = r'\('
@@ -108,7 +115,7 @@ t_DOT = r'\.'
 t_ASSIGN = r'='
 t_PLUSEQUAL = r'\+\='
 t_MINUSEQUAL = r'\-\='
-t_EQUALS = r'=='
+t_EQUALS = r'\=\='
 t_NE = r'!='
 t_LTE = r'<='
 t_GTE = r'>='
@@ -174,7 +181,7 @@ def t_ID(token):
     return token
             
 def t_COMENTARIOS(token):
-    r'(//|#).*'
+    r'(//|\#).*'
     pass
 
 def t_COMENTARIOS_MULTILINEA(token):
@@ -184,3 +191,5 @@ def t_COMENTARIOS_MULTILINEA(token):
 def t_FIN_LINEA(token):
     r'\n'
     return token
+
+analizador = lex.lex()
