@@ -32,6 +32,9 @@ def agregarError(indice, tipo, descripcion, valor, linea, columna):
         'Columna': columna
     })
 
+
+
+
 #lista de token validos para el lenguaje
 tokens = [
     'if',
@@ -80,6 +83,7 @@ tokens = [
     'COMENTARIOS',
     'COMENTARIOS_MULTILINEA',
     'FIN_LINEA',
+    'print',
 ]
 
 #palabras reservadas
@@ -92,6 +96,7 @@ reservadas = {
     'range':'range',
     'Class':'Class',
     'func':'func',
+    'print':'print',
     'int':'int',
     'float':'float',
     'String':'String',
@@ -229,3 +234,4 @@ def t_error(token):
 
 #construye el analizador lexico posiblemente se tenga que comentar
 analizador = lex.lex()
+print(tablaErrores)

@@ -23,7 +23,8 @@ def obtenerColumna(input, token, n):
     if column == 0:
         return 1 
     return column
-
+def obtener_errores_sintactico():
+    return tablaErrores
 precedence = (
     ('right','ASSIGN'),
     ('left','NE'),
@@ -86,6 +87,7 @@ def p_auxbloque(prod):
               | ciclowhile
               | si
               | funcion
+              | imprimir
     '''
     prod[0] = prod[1]
 
@@ -233,6 +235,11 @@ def p_parametros(prod):
     else:
         prod[0] = [prod[1], prod[2]]
 
+def p_imprimir(prod):
+    '''
+    imprimir : print LPARENT CADENA RPARENT
+               
+    '''
 
 #manejo de errores
 def p_error(prod):
