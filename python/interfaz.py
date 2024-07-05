@@ -274,7 +274,7 @@ def analisisCompleto(resul=None):
         #imprimir_errores_semanticos()
         
         # Análisis sintáctico
-        #tablaerrores.clear()
+        tablaErrores.clear()
         try:
             resultado = parse.parse(cadena)
             mostrarAnalisisSintactico2(resultado)
