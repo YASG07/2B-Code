@@ -80,10 +80,10 @@ def p_auxiliarBloque(prod):
 #declaracion de variables
 def p_declaracion(prod):
     '''
-    declaracion : tipoDato ID ASSIGN expresion
-                | tipoDato ID ASSIGN BOOLEAN 
-                | tipoDato ID ASSIGN CADENA 
-                | tipoDato ID 
+    declaracion : tipoDato ID ASSIGN expresion FIN_LINEA
+                | tipoDato ID ASSIGN BOOLEAN FIN_LINEA
+                | tipoDato ID ASSIGN CADENA FIN_LINEA
+                | tipoDato ID FIN_LINEA
     '''
     if prod[2] not in tablaSimbolos:
         if len(prod) == 6:

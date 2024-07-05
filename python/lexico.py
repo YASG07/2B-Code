@@ -205,7 +205,7 @@ def t_COMENTARIOS_MULTILINEA(token):
     pass
 
 def t_FIN_LINEA(token):
-    r'\n'
+    r'\$'
     return token
 
 #Manejo de errores lexicos
