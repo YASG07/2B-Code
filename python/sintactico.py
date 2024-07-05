@@ -94,17 +94,10 @@ def p_auxbloque(prod):
 #declaracion de variables
 def p_declaracion(prod):
     '''
-<<<<<<< HEAD
-    declaracion : tipoDato ID ASSIGN expresion FIN_LINEA
-                | tipoDato ID ASSIGN BOOLEAN FIN_LINEA
-                | tipoDato ID ASSIGN CADENA FIN_LINEA
-                | tipoDato ID FIN_LINEA
-=======
     declaracion : tipodato ID ASSIGN expresion FIN_LINEA
                 | tipodato ID ASSIGN BOOLEAN FIN_LINEA
                 | tipodato ID ASSIGN CADENA FIN_LINEA
                 | tipodato ID FIN_LINEA
->>>>>>> 48ac56c775d7bebb67871cc45748870dcd46aef1
     '''
     if prod[2] not in tablaSimbolos:
         if len(prod) == 6:
