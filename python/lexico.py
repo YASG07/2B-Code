@@ -27,7 +27,7 @@ def agregarError(indice, tipo, descripcion, valor, linea, columna):
         'Indice': indice,
         'Tipo': tipo,
         'Descripción': descripcion,
-        'Valor': str(valor),
+        'Valor': valor,
         'Línea': linea,
         'Columna': columna
     })
@@ -167,7 +167,7 @@ def t_NUMBER(token):
 #funcion para validar booleanos
 def t_BOOLEAN(token):
     r'(true|false)'
-    token.value = True if token.value.lower() == 'valor' else False
+    token.value = True if token.value.lower() == 'true' else False
     tablaSimbolos[token.value] = {
         'Tipo': 'BOOLEAN',
         'Valor': token.value,

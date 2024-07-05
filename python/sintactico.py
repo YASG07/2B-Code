@@ -5,6 +5,10 @@ from lexico import tokens, obtenerErrores, agregarError
 tablaErrores = obtenerErrores()
 tablaSimbolos = {}
 
+def obtenerErroresSintactico():
+    global tablaErrores
+    return tablaErrores
+
 def reiniciarAnalizadorSintactico():
     global tablaErrores
     tablaErrores = []
@@ -21,6 +25,15 @@ def obtenerColumna(input, token, n):
     return column
 def obtener_errores_sintactico():
     return tablaErrores
+precedence = (
+    ('right','ASSIGN'),
+    ('left','NE'),
+    ('left', 'LT', 'LTE', 'GT', 'GTE'),
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+    ('left', 'LPARENT', 'RPARENT'),
+)
+
 #gramatica para definir un programa
 def p_programa(prod):
     '''
@@ -41,23 +54,24 @@ def p_clase(prod):
     #si identificador(ID) no esta en la tabla de simbolos (analisis semantico)
     if prod[2] not in tablaSimbolos:
         #construcción del ASA
-        prod[0] = ('clase', prod[2])
+        prod[0] = ('clase', prod[2], prod[3])
         tablaSimbolos[prod[2]] = 'Class'
     else:
-        agregarError(1, 'Semántico', 'Clase ya definida', prod[2].value, prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
+        agregarError(1, 'Semántico', 'Clase ya definida', prod[2], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
         
 #gramatica para bloque de código
 def p_bloque(prod):
     '''
     bloque : LKEY instrucciones RKEY
+           | LKEY RKEY 
     '''
     prod[0] = ('bloque', prod[2])
 
 #lista de instrucciones (1 o más)
 def p_instrucciones(prod):
     '''
-    instrucciones : instrucciones auxBloque
-                  | auxBloque  
+    instrucciones : instrucciones auxbloque
+                  | auxbloque  
     '''
     if len(prod) == 3:
         prod[0] = prod[1] + [prod[2]]
@@ -65,12 +79,12 @@ def p_instrucciones(prod):
         prod[0] = [prod[1]]
 
 #auxiliar para bloque de código
-def p_auxiliarBloque(prod):
+def p_auxbloque(prod):
     '''
-    auxBloque : declaracion
+    auxbloque : declaracion
               | asignacion
-              | cicloFor
-              | cicloWhile
+              | ciclofor
+              | ciclowhile
               | si
               | funcion
               | imprimir
@@ -80,10 +94,17 @@ def p_auxiliarBloque(prod):
 #declaracion de variables
 def p_declaracion(prod):
     '''
+<<<<<<< HEAD
     declaracion : tipoDato ID ASSIGN expresion FIN_LINEA
                 | tipoDato ID ASSIGN BOOLEAN FIN_LINEA
                 | tipoDato ID ASSIGN CADENA FIN_LINEA
                 | tipoDato ID FIN_LINEA
+=======
+    declaracion : tipodato ID ASSIGN expresion FIN_LINEA
+                | tipodato ID ASSIGN BOOLEAN FIN_LINEA
+                | tipodato ID ASSIGN CADENA FIN_LINEA
+                | tipodato ID FIN_LINEA
+>>>>>>> 48ac56c775d7bebb67871cc45748870dcd46aef1
     '''
     if prod[2] not in tablaSimbolos:
         if len(prod) == 6:
@@ -93,7 +114,7 @@ def p_declaracion(prod):
             prod[0] = ('declaración', prod[1], prod[2])
             tablaSimbolos[prod[2]] = [prod[1]]
     else:
-        agregarError(2, 'Semántico', 'Variable ya definida', prod[2].value, prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
+        agregarError(2, 'Semántico', 'Variable ya definida', prod[2], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
 
 #asignación de valores
 def p_asignacion(prod):
@@ -106,12 +127,12 @@ def p_asignacion(prod):
         prod[0] = ('asignacion', prod[1], prod[3])
         tablaSimbolos[prod[1]].append(prod[3])
     else:
-        agregarError(3, 'Semántico', 'Variable no declarada', prod[1].value, prod.lineno(1), obtenerColumna(prod.lexer.lexdata, prod, 1))
+        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1), obtenerColumna(prod.lexer.lexdata, prod, 1))
 
 #auxiliar para declaración (tipos de dato aceptados)
-def p_tipoDato(prod):
+def p_tipodato(prod):
     '''
-    tipoDato : int
+    tipodato : int
              | String
              | float
              | char
@@ -125,6 +146,10 @@ def p_expresion(prod):
     expresion : expresion aritmetico valor
               | valor   
     '''
+    if len(prod) == 4:
+        prod[0] = ('expresion', prod[1], prod[2], prod[3])
+    else:
+        prod[0] = prod[1]
 
 def p_valor(prod):
     '''
@@ -148,18 +173,25 @@ def p_aritmetico(prod):
     '''
     prod[0] = prod[1]
 
-def p_operacionLogica(prod):
+def p_operacionlogica(prod):
     '''
-    operacionLogica : condicion AND condicion  
+    operacionlogica : condicion AND condicion  
                     | condicion OR condicion  
                     | NOT condicion
                     | condicion  
     '''
+    if len(prod) == 4:
+        prod[0] = ('opLogica', prod[1], prod[2], prod[3])
+    elif len(prod) == 3:
+        prod[0] = ('opLogica', prod[1], prod[2])
+    elif len(prod) == 2:
+        prod[0] = ('opLogica', prod[1])
 
 def p_condicion(prod):
     '''
     condicion : expresion comparacion expresion
     '''
+    prod[0] = ('condicion', prod[1], prod[2], prod[3])
 
 def p_comparacion(prod):
     '''
@@ -170,36 +202,46 @@ def p_comparacion(prod):
                 | NE
                 | EQUALS
     '''
+    prod[0] = prod[1]
 
-def p_cicloFor(prod):
+def p_ciclofor(prod):
     '''
-    cicloFor : for ID in range ID bloque
+    ciclofor : for ID in range ID bloque
              | for ID in range NUMBER bloque
     '''
+    prod[0] = ('cicloFor', prod[2], prod[5])
 
-def p_cicloWhile(prod):
+def p_ciclowhile(prod):
     '''
-    cicloWhile : while LPARENT operacionLogica RPARENT bloque
+    ciclowhile : while LPARENT operacionlogica RPARENT bloque
                | while LPARENT BOOLEAN RPARENT bloque 
     '''
+    prod[0] = ('cicloWhile', prod[3])
 
-def p_if(prod):
+def p_si(prod):
     '''
-    si : if LPARENT operacionLogica RPARENT bloque
-       | if LPARENT operacionLogica RPARENT bloque else bloque 
+    si : if LPARENT operacionlogica RPARENT bloque
+       | if LPARENT operacionlogica RPARENT bloque else bloque 
     '''
+    prod[0] = ('Si', prod[3])
 
 def p_funcion(prod):
     '''
     funcion : func ID LPARENT RPARENT bloque
             | func ID LPARENT parametros RPARENT bloque
     '''
+    prod[0] = ('funcion', prod[2])
 
 def p_parametros(prod):
     '''
-    parametros : parametros COMMA tipoDato ID
-               | tipoDato ID 
+    parametros : parametros COMMA tipodato ID
+               | tipodato ID 
     '''
+    if len(prod) == 5:
+        prod[0] = prod[1] + [prod[3], prod[4]]
+    else:
+        prod[0] = [prod[1], prod[2]]
+
 def p_imprimir(prod):
     '''
     imprimir : print LPARENT CADENA RPARENT
@@ -209,10 +251,18 @@ def p_imprimir(prod):
 #manejo de errores
 def p_error(prod):
     if not prod:
-        agregarError(0, 'Sintactico', 'Programa inválido', prod.value, prod.lineno, obtenerColumna(prod.lexer.lexdata, prod, 0))
+        agregarError(0, 'Sintactico', 'Programa inválido', prod.value, prod, obtenerColumna(prod.lexer.lexdata, prod, 0))
+    
 
-yacc.errorlog = yacc.NullLogger()        
-
-parse = yacc.yacc()
+parser = yacc.yacc()
+yacc.errorlog = yacc.NullLogger()
+src = '''
+Class PolloFeliz {
+ int a = 5$
+ 
+}
+Class Pollo {
+}
+'''
+print(parser.parse(src))
 print(tablaErrores)
-
