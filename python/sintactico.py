@@ -249,5 +249,13 @@ def p_error(prod):
 
 parser = yacc.yacc()
 yacc.errorlog = yacc.NullLogger()
-
+src = '''
+Class PolloFeliz {
+ int a = 5$
+ a = 0$
+}
+Class Pollo {
+}
+'''
+print(parser.parse(src))
 print(tablaErrores)
