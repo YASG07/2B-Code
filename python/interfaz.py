@@ -3,7 +3,7 @@ from tkinter import filedialog
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox as mb
 from lexico import tokens, reservadas,analizador,tablaErrores
-from sintactico import parse, yacc
+from sintactico import parser, yacc,reiniciarAnalizadorSintactico
 
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -275,9 +275,9 @@ def analisisCompleto(resul=None):
         #imprimir_errores_semanticos()
         
         # Análisis sintáctico
-        #tablaErrores.clear()
+        reiniciarAnalizadorSintactico()
         try:
-            resultado = parse.parse(cadena)
+            resultado = parser.parse(cadena)
             print(resultado)
             mostrarAnalisisSintactico2(resultado)
             scrollAnalisis.insert(END, "Análisis Sintáctico Correcto\n")
@@ -342,7 +342,7 @@ def analisisSintactico():
     cadena = scroll_text_widget.get_text()
     if len(cadena) > 0:
         try:
-            resultado = parse.parse(cadena)
+            resultado = parser.parse(cadena)
             print(resultado)
             mostrarAnalisisSintactico2(resultado)
             scrollAnalisis.config(state="normal")  # Cambiar el estado a normal para permitir la edición
@@ -369,7 +369,7 @@ def AbrirArchivos():
                                           title="Select a File",
                                           filetypes=(("Text files", "*.txt"), ("Rcb files", "*.rcb"), ("all files", "*.*")))
     if filename != '':
-        if filename.endswith((".txt", ".ht")):  # Pa' abrir archivos .txt o .ht
+        if filename.endswith((".txt", ".rcb")):  # Pa' abrir archivos .txt o .ht
             root.title("Compilador Python   code: " + filename)
             with open(filename, "r", encoding="utf-8") as file:
                 content = file.read()
