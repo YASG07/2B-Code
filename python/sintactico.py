@@ -203,7 +203,13 @@ def p_ciclofor(prod):
              | for ID in range NUMBER bloque
     '''
     prod[0] = ('cicloFor', prod[2], prod[5])
-
+def p_errorciclofor(prod):
+    '''
+    ciclofor : for ID in range DECIMAL bloque
+    '''
+    agregarError(6, 'Semántico', 'se esperaba un número entero y se encontró un número decimal.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
+    prod[0] = 'Error'
+    
 def p_ciclowhile(prod):
     '''
     ciclowhile : while LPARENT operacionlogica RPARENT bloque
