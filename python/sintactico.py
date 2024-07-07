@@ -259,6 +259,8 @@ src = '''
 Class PolloFeliz {
  int a = 5$
  a = 0$
+ for hola in range 4.5 {
+ }
 }
 Class Pollo {
 }
