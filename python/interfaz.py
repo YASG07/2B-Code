@@ -157,7 +157,7 @@ class ScrollTextWithLineNumbers(Frame):
     def clear_scroll_text(self):
         self.text_widget.delete(1.0, 'end')  # Borra todo el texto en el widget
         self._update_line_numbers()  # Actualiza la numeración de líneas
-    def change_bg_color(self):
+def change_bg_color(self):
         colors = {"Blanco": "#FFFFFF", "Negro": "#000000", "Azul": "#001f3f"}
         color_window = Toplevel(self.root)
         color_window.title("Cambiar Color de Fondo")
@@ -172,11 +172,11 @@ class ScrollTextWithLineNumbers(Frame):
         def on_select():
             selected_color_name = listbox.get(listbox.curselection())
             selected_color_code = colors[selected_color_name]
-            self.text_area.config(bg=selected_color_code)
+            self.text_widget.config(bg=selected_color_code)
             if selected_color_code == "#FFFFFF":
-                self.text_area.config(fg="black", insertbackground="black")
+                self.text_widget.config(fg="black", insertbackground="black")
             else:
-                self.text_area.config(fg="white", insertbackground="white")
+                self.text_widget.config(fg="white", insertbackground="white")
             color_window.destroy()
 
         listbox.bind('<<ListboxSelect>>', lambda event: None)
@@ -279,8 +279,9 @@ def analisisCompleto(resul=None):
         try:
             resultado = parser.parse(cadena)
             print(resultado)
+            
             mostrarAnalisisSintactico2(resultado)
-            scrollAnalisis.insert(END, "Análisis Sintáctico Correcto\n")
+            
         
         except yacc.YaccError as e:
         #      #imprimir_errores_sintacticos()
@@ -292,6 +293,7 @@ def analisisCompleto(resul=None):
         # # #imprimir_errores_semanticos()
         # # # Volver a deshabilitar la edición del widget
         scrollAnalisis.config(state="disabled")
+        scrollAnalisis.insert(END, "Compilacion sin error\n")
     else:
         mb.showwarning("ERROR", "Debes escribir código")
     
@@ -301,11 +303,11 @@ def imprimir_errores():
      scrollAnalisis.delete(1.0, END)  # Borra el contenido actual del `ScrolledText`
      analizador.lineno=0
      for error in tablaErrores:
-         texto_error = f"Indice: {error['Indice']},"
+         texto_error = f"Error: {error['Error']},"
          texto_error += f"Tipo: {error['Tipo']},"
          texto_error += f"Descripción: {error['Descripción']},"
          texto_error += f"Valor: {error['Valor']},"
-         #texto_error += f"Linea: {error['Linea']},"
+         texto_error += f"Linea: {error['Linea']},"
          texto_error += f"Columna: {error['Columna']}\n"
          scrollAnalisis.insert(INSERT, texto_error)
      scrollAnalisis.config(state="disabled")  # Volver a deshabilitar la edición
@@ -494,6 +496,7 @@ font_menu.add_command(label="20", command=lambda: cambiar_tamaño_letra(20))
 
 menubar.add_cascade(label="Tamaño de la letra", menu=font_menu)
 menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON 
+#menubar.add_radiobutton(label="Color de fondo", command=self.change_bg_color)
 
 root.config(menu=menubar)
 root.mainloop()

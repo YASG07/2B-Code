@@ -1,18 +1,23 @@
-Class PolloFeliz {
-    int pollos = 5
-    String Asadero = "hola"
-    for pollo in range 4{
-        int af
-    }
-    while (true){
-     print("Reprobado")
-        }
+Class Mundo1 {
+    int enemigos = 5$
+	int fuerza = 2$
+    String Mensaje = "Perdiste"$
 
-        func sumar(int a, int b) {
-     // Función que realiza la suma de dos números
-      print("Reprobado")
-    }
+for enmigos in range 4{
+ 	int af$
+	
+}
+if (enemigos>fuerza){
+}
+
+
 
 }
-class PolloFeliz{
-}
+
+
+
+
+
+
+
+

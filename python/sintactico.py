@@ -57,8 +57,23 @@ def p_clase(prod):
         prod[0] = ('clase', prod[2], prod[3])
         tablaSimbolos[prod[2]] = 'Class'
     else:
-        agregarError(1, 'Semántico', 'Clase ya definida', prod[2], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
-        
+        agregarError(1, 'Semántico', 'Clase ya definida', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+#Gramtica para error de clase doble indetificador o numero
+def p_errorclase(prod):
+    '''
+    clase : Class ID ID bloque
+          | Class ID NUMBER bloque
+          | Class ID ID
+          | Class ID NUMBER
+          | Class ID DECIMAL bloque
+          | Class ID DECIMAL
+          | Class NUMBER bloque
+          | Class NUMBER    
+          | Class DECIMAL bloque
+          | Class DECIMAL
+    ''' 
+    agregarError(1, 'Sintactico', 'Clase mal definida ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    prod[0] = 'Error'       
 #gramatica para bloque de código
 def p_bloque(prod):
     '''
@@ -66,6 +81,21 @@ def p_bloque(prod):
            | LKEY RKEY 
     '''
     prod[0] = ('bloque', prod[2])
+#gramatica de errro de bloque de codigo    
+def p_errorbloque1(prod):
+    '''
+    bloque :  instrucciones RKEY
+           |  RKEY 
+    '''
+    agregarError(2, 'Sintactico', 'Falta llave de apertura { ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    prod[0] = 'Error'
+def p_errorbloque1(prod):
+    '''
+    bloque : LKEY instrucciones 
+           | LKEY  
+    '''
+    agregarError(3, 'Sintactico', 'Falta llave de cierre } ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    prod[0] = 'Error'
 
 #lista de instrucciones (1 o más)
 def p_instrucciones(prod):
@@ -107,8 +137,17 @@ def p_declaracion(prod):
             prod[0] = ('declaración', prod[1], prod[2])
             tablaSimbolos[prod[2]] = [prod[1]]
     else:
-        agregarError(2, 'Semántico', 'Variable ya definida', prod[2], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
-
+        agregarError(2, 'Semántico', 'Variable ya definida', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+#Gramatica para error de declaracion
+def p_errordeclaracion(prod):
+    '''
+    declaracion : tipodato ID ASSIGN expresion 
+                | tipodato ID ASSIGN BOOLEAN
+                | tipodato ID ASSIGN CADENA 
+                | tipodato ID 
+    '''
+    agregarError(4, 'Sintactico', 'Falta el $ en la declaracion', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+    prod[0] = 'Error'
 #asignación de valores
 def p_asignacion(prod):
     '''
@@ -120,7 +159,16 @@ def p_asignacion(prod):
         prod[0] = ('asignacion', prod[1], prod[3])
         tablaSimbolos[prod[1]].append(prod[3])
     else:
-        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1), obtenerColumna(prod.lexer.lexdata, prod, 1))
+        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
+#Gramtica para error de asignacion
+def p_errorasignacion(prod):
+    '''
+    asignacion : ID ASSIGN expresion 
+               | ID ASSIGN BOOLEAN 
+               | ID ASSIGN CADENA 
+    '''
+    agregarError(5, 'Sintactico', 'Falta el $ en la asignacion', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
+    prod[0] = 'Error'
 
 #auxiliar para declaración (tipos de dato aceptados)
 def p_tipodato(prod):
@@ -184,8 +232,20 @@ def p_condicion(prod):
     '''
     condicion : expresion comparacion expresion
     '''
-    prod[0] = ('condicion', prod[1], prod[2], prod[3])
-
+    if prod[1] in tablaSimbolos:
+        prod[0] = ('condicion', prod[1], prod[2], prod[3])
+    else:
+        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+#gramatica para error semantico del if
+def p_errorcondicion(prod):
+    '''
+    condicion : expresion 
+    '''
+    if prod[1] not in tablaSimbolos:
+         agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    else:
+        agregarError(8, 'Semántico', 'La condición debe ser de tipo booleana o de comparación', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+        prod[0] = 'Error'
 def p_comparacion(prod):
     '''
     comparacion : LT
@@ -207,7 +267,7 @@ def p_errorciclofor(prod):
     '''
     ciclofor : for ID in range DECIMAL bloque
     '''
-    agregarError(6, 'Semántico', 'se esperaba un número entero y se encontró un número decimal.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
+    agregarError(9, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
     prod[0] = 'Error'
     
 def p_ciclowhile(prod):
@@ -259,8 +319,7 @@ src = '''
 Class PolloFeliz {
  int a = 5$
  a = 0$
- for hola in range 4.5 {
- }
+
 }
 Class Pollo {
 }

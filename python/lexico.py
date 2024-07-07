@@ -24,11 +24,11 @@ def obtenerColumna(input, token):
 
 def agregarError(indice, tipo, descripcion, valor, linea, columna):
     tablaErrores.append({
-        'Indice': indice,
+        'Error': indice,
         'Tipo': tipo,
         'Descripción': descripcion,
         'Valor': valor,
-        'Línea': linea,
+        'Linea': linea,
         'Columna': columna
     })
 
