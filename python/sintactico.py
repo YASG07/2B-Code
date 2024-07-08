@@ -45,12 +45,14 @@ def p_programa(prod):
         prod[0] = prod[1] + [prod[2]]
     else:
         prod[0] = ['programa', prod[1]]
+#Eroro variable mal declaradas
 
 #gramatica para definir una clase
 def p_clase(prod):
     '''
     clase : Class ID bloque
     '''
+    #Yael
     #si identificador(ID) no esta en la tabla de simbolos (analisis semantico)
     if prod[2] not in tablaSimbolos:
         #construcción del ASA
@@ -72,8 +74,19 @@ def p_errorclase(prod):
           | Class DECIMAL bloque
           | Class DECIMAL
     ''' 
+    #Cesar
     agregarError(1, 'Sintactico', 'Clase mal definida ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
-    prod[0] = 'Error'       
+    prod[0] = 'Error'
+#Gramtica para error de clase doble indetificador o numero
+def p_errorclase2(prod):
+    '''
+    clase :  declaracion Class ID bloque
+          |  Class ID bloque declaracion
+          
+    ''' 
+    #Cesar
+    agregarError(4, 'Semantico', 'Mal declaracion de variables ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    prod[0] = 'Error'                  
 #gramatica para bloque de código
 def p_bloque(prod):
     '''
@@ -87,6 +100,7 @@ def p_errorbloque1(prod):
     bloque :  instrucciones RKEY
            |  RKEY 
     '''
+    #Cesar
     agregarError(2, 'Sintactico', 'Falta llave de apertura { ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     prod[0] = 'Error'
 def p_errorbloque1(prod):
@@ -94,6 +108,7 @@ def p_errorbloque1(prod):
     bloque : LKEY instrucciones 
            | LKEY  
     '''
+    #Cesar
     agregarError(3, 'Sintactico', 'Falta llave de cierre } ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     prod[0] = 'Error'
 
@@ -129,6 +144,7 @@ def p_declaracion(prod):
                 | tipodato ID ASSIGN CADENA FIN_LINEA
                 | tipodato ID FIN_LINEA
     '''
+    #Yael
     if prod[2] not in tablaSimbolos:
         if len(prod) == 6:
             prod[0] = ('declaracion', prod[1], prod[2], prod[4])
@@ -155,6 +171,7 @@ def p_asignacion(prod):
                | ID ASSIGN BOOLEAN FIN_LINEA
                | ID ASSIGN CADENA FIN_LINEA
     '''
+    #Yael
     if prod[1] in tablaSimbolos:
         prod[0] = ('asignacion', prod[1], prod[3])
         tablaSimbolos[prod[1]].append(prod[3])
@@ -167,6 +184,7 @@ def p_errorasignacion(prod):
                | ID ASSIGN BOOLEAN 
                | ID ASSIGN CADENA 
     '''
+    #Cesar
     agregarError(5, 'Sintactico', 'Falta el $ en la asignacion', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
     prod[0] = 'Error'
 
@@ -185,12 +203,28 @@ def p_tipodato(prod):
 def p_expresion(prod):
     '''
     expresion : expresion aritmetico valor
+              | valor aritmetico valor
               | valor   
     '''
     if len(prod) == 4:
-        prod[0] = ('expresion', prod[1], prod[2], prod[3])
+        operador = prod[2]
+        valor1 = prod[1]
+        valor2 = prod[3]
+        #Rodolfo
+        if operador == '+':
+            prod[0] = valor1 + valor2
+        elif operador == '-':
+            prod[0] = valor1 - valor2
+        elif operador == '*':
+            prod[0] = valor1 * valor2
+        elif operador == '/':
+            if valor2 != 0:
+                prod[0] = valor1 / valor2
+            else:
+                agregarError(5, 'Semántico', 'División por cero',valor2, prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     else:
         prod[0] = prod[1]
+    
 
 def p_valor(prod):
     '''
@@ -203,6 +237,9 @@ def p_valor(prod):
         prod[0] = prod[2]
     else:
         prod[0] = prod[1]
+        # Verificación de si el valor es un número
+    
+
 
 def p_aritmetico(prod):
     '''
@@ -213,6 +250,13 @@ def p_aritmetico(prod):
                | MOD
     '''
     prod[0] = prod[1]
+    #Verificación de operador aritmético no reconocido
+    operadores_validos = {'+', '-', '*', '/'}
+    #Rodolfo
+    if prod[1] not in operadores_validos:
+        agregarError(6,'Semántico', 'Operador aritmético no válido', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+
+
 
 def p_operacionlogica(prod):
     '''
@@ -232,8 +276,10 @@ def p_condicion(prod):
     '''
     condicion : expresion comparacion expresion
     '''
+    #Cesar
     if prod[1] in tablaSimbolos:
         prod[0] = ('condicion', prod[1], prod[2], prod[3])
+        
     else:
         agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
 #gramatica para error semantico del if
@@ -241,10 +287,12 @@ def p_errorcondicion(prod):
     '''
     condicion : expresion 
     '''
+    #Cesar
     if prod[1] not in tablaSimbolos:
+         
          agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     else:
-        agregarError(8, 'Semántico', 'La condición debe ser de tipo booleana o de comparación', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+        agregarError(7, 'Semántico', 'La condición debe ser de comparación', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
         prod[0] = 'Error'
 def p_comparacion(prod):
     '''
@@ -256,6 +304,19 @@ def p_comparacion(prod):
                 | EQUALS
     '''
     prod[0] = prod[1]
+def p_errorcomparacion(prod):
+    '''
+    comparacion : ASSIGN
+                | MOD
+                | PLUS
+                | MINUS
+                
+    '''
+    #Rodolfo
+    agregarError(9,'Semántico', 'Operador aritmético no válido', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    prod[0] = 'error'
+      
+        
 
 def p_ciclofor(prod):
     '''
@@ -267,7 +328,8 @@ def p_errorciclofor(prod):
     '''
     ciclofor : for ID in range DECIMAL bloque
     '''
-    agregarError(9, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
+    #Cesar
+    agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
     prod[0] = 'Error'
     
 def p_ciclowhile(prod):
@@ -325,4 +387,4 @@ Class Pollo {
 }
 '''
 print(parser.parse(src))
-print(tablaErrores)
+print(tablaSimbolos)
