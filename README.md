@@ -10,24 +10,24 @@ Lo primero que se necesita es instalar python y la libreria ply.
 
 Luego de instalar python ejecutar:
 
-'''
+```
 pip install ply
-'''
+```
 
 ## Ejecutar pruebas
 
 Dentro del directorio del proyecto en una terminal (cmd, python o VSCode):
 
-'''
+```
 py interfaz.py
-'''
+```
 
-O bien ejecutar el archivo "interfaz.py" con la extensión de VSCode "Python Debugger"
+O bien ejecutar el archivo *interfaz.py* con la extensión de VSCode *Python Debugger*
 
 ## Hecho en:
 
 * Visual Studio Code.
-* Extensiones de VSCode: Python y Python Debugger.
+* Extensiones de VSCode: *Python* y *Python Debugger*.
 
 ## Autores:
 
@@ -37,4 +37,4 @@ O bien ejecutar el archivo "interfaz.py" con la extensión de VSCode "Python Deb
 
 ## Licenciamiento:
 
-Este es un proyecto es Open Source por lo que el código fuente está abierto al público.
+Este es un proyecto es **OpenSource**, es decir que el código fuente está abierto al público.
