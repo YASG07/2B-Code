@@ -103,7 +103,7 @@ def p_errorbloque1(prod):
     #Cesar
     agregarError(2, 'Sintactico', 'Falta llave de apertura { ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     prod[0] = 'Error'
-def p_errorbloque1(prod):
+def p_errorbloque2(prod):
     '''
     bloque : LKEY instrucciones 
            | LKEY  
@@ -240,7 +240,6 @@ def p_valor(prod):
         # Verificación de si el valor es un número
     
 
-
 def p_aritmetico(prod):
     '''
     aritmetico : PLUS
@@ -279,7 +278,6 @@ def p_condicion(prod):
     #Cesar
     if prod[1] in tablaSimbolos:
         prod[0] = ('condicion', prod[1], prod[2], prod[3])
-        
     else:
         agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
 #gramatica para error semantico del if
@@ -310,7 +308,6 @@ def p_errorcomparacion(prod):
                 | MOD
                 | PLUS
                 | MINUS
-                
     '''
     #Rodolfo
     agregarError(9,'Semántico', 'Operador aritmético no válido', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
@@ -323,7 +320,7 @@ def p_ciclofor(prod):
     ciclofor : for ID in range ID bloque
              | for ID in range NUMBER bloque
     '''
-    prod[0] = ('cicloFor', prod[2], prod[5])
+    prod[0] = ('cicloFor', prod[2], prod[5], prod[6])
 def p_errorciclofor(prod):
     '''
     ciclofor : for ID in range DECIMAL bloque
@@ -342,9 +339,12 @@ def p_ciclowhile(prod):
 def p_si(prod):
     '''
     si : if LPARENT operacionlogica RPARENT bloque
-       | if LPARENT operacionlogica RPARENT bloque else bloque 
+       | si else bloque 
     '''
-    prod[0] = ('Si', prod[3])
+    if len(prod) == 6:
+        prod[0] = ('Si', prod[3], prod[5])
+    else:
+        prod[0] = ('SiNo', prod[1], prod[3])
 
 def p_funcion(prod):
     '''
@@ -365,26 +365,102 @@ def p_parametros(prod):
 
 def p_imprimir(prod):
     '''
-    imprimir : print LPARENT CADENA RPARENT
-               
+    imprimir : print LPARENT CADENA RPARENT FIN_LINEA
     '''
+    prod[0] = ('print',prod[3])
 
-#manejo de errores
+#manejo de errores. PD: agreguen todas las gramaticas de error en esta area
+
+#errorres al definir un programa
+def p_errorprograma1(prod):
+    '''
+    programa : error clase
+    '''
+    agregarError(0, 'Sintactico', 'El código debe ir dentro de una clase', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+def p_errorprograma2(prod):
+    '''
+    programa : clase error
+    '''
+    agregarError(0, 'Sintactico', 'El código debe ir dentro de una clase', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+
+#errores al definir una clase
+def p_errorclase3(prod):
+    '''
+    clase : error ID bloque
+    '''
+    agregarError(1, 'Sintactico', 'Clase mal definida', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+def p_errorclase4(prod):
+    '''
+    clase : Class error bloque
+    '''
+    agregarError(1, 'Sintactico', 'Clase mal definida', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+
+#errores al construir un bloque
+def p_errorbloque3(prod):
+    '''
+    bloque : error instrucciones RKEY
+           | error RKEY 
+    '''
+    agregarError(2.1, 'Sintactico', 'Llave de apertura "{" no detectada', prod[1], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+def p_errorbloque4(prod):
+    '''
+    bloque : LKEY instrucciones error
+           | LKEY error 
+    '''
+    if len(prod) == 4:
+        agregarError(3.1, 'Sintactico', 'Llave de cierre "}" no detectada', prod[3].value, prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+    else:
+        agregarError(3.1, 'Sintactico', 'Llave de cierre "}" no detectada', prod[2].value, prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+
+#errores al listar instrucciones
+def p_errorinstrucciones1(prod):
+    '''
+    instrucciones : error auxbloque
+    '''
+    agregarError(6, 'Sintactico', 'Instrucción inválida', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+def p_errorinstrucciones2(prod):
+    '''
+    instrucciones : auxbloque error
+    '''
+    agregarError(6, 'Sintactico', 'Instrucción inválida', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+
+#errores al declarar variables
+def p_errordeclaracion2(prod):
+    '''
+    declaracion : error ID ASSIGN expresion FIN_LINEA
+                | error ID ASSIGN BOOLEAN FIN_LINEA
+                | error ID ASSIGN CADENA FIN_LINEA
+                | error ID FIN_LINEA
+    '''
+    agregarError(7, 'Sintactico', 'Tipo de dato no válido', prod[1].value, prod.lineno(1), obtenerColumna(prod.lexer.lexdata, prod, 1))
+def p_errordeclaracion3(prod):
+    '''
+    declaracion : tipodato error ASSIGN expresion FIN_LINEA
+                | tipodato error ASSIGN BOOLEAN FIN_LINEA
+                | tipodato error ASSIGN CADENA FIN_LINEA
+                | tipodato error FIN_LINEA
+    '''
+    agregarError(8, 'Sintactico', 'Nombre de variable no válido', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+def p_errordeclaracion4(prod):
+    '''
+    declaracion : tipodato ID expresion FIN_LINEA
+                | tipodato ID BOOLEAN FIN_LINEA
+                | tipodato ID CADENA FIN_LINEA
+    '''
+    agregarError(9, 'Sintactico', 'Falta el símbolo "=" en la declaración', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+def p_errordeclaracion5(prod):
+    '''
+    declaracion : tipodato ID error expresion FIN_LINEA
+                | tipodato ID error BOOLEAN FIN_LINEA
+                | tipodato ID error CADENA FIN_LINEA
+    '''
+    agregarError(9.1, 'Sintactico', 'Símbolo "=" no detectado', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+
+
+#error programa no válido
 def p_error(prod):
     if not prod:
-        agregarError(0, 'Sintactico', 'Programa inválido', prod.value, prod, obtenerColumna(prod.lexer.lexdata, prod, 0))
+        agregarError(0, 'Sintactico', 'Programa inválido','','','')
     
 
 parser = yacc.yacc()
-yacc.errorlog = yacc.NullLogger()
-src = '''
-Class PolloFeliz {
- int a = 5$
- a = 0$
-
-}
-Class Pollo {
-}
-'''
-print(parser.parse(src))
-print(tablaSimbolos)
