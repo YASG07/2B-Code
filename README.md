@@ -8,6 +8,9 @@ Lo primero que se necesita es instalar python y la libreria ply.
 
 ## Prerequisitos:
 
+* Python 3.10 o superios
+* Libreria [*ply*](https://pypi.org/project/ply/)
+
 Luego de instalar python ejecutar:
 
 ```
@@ -28,6 +31,7 @@ O bien ejecutar el archivo *interfaz.py* con la extensión de VSCode *Python Deb
 
 * Visual Studio Code.
 * Extensiones de VSCode: *Python* y *Python Debugger*.
+* Librerias: *re*, [*ply*](https://pypi.org/project/ply/) y *tkinter*.
 
 ## Autores:
 
@@ -37,4 +41,4 @@ O bien ejecutar el archivo *interfaz.py* con la extensión de VSCode *Python Deb
 
 ## Licenciamiento:
 
-Este es un proyecto es **OpenSource**, es decir que el código fuente está abierto al público.
+Este es un proyecto **OpenSource**.
