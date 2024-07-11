@@ -42,3 +42,7 @@ O bien ejecutar el archivo *interfaz.py* con la extensión de VSCode *Python Deb
 ## Licenciamiento:
 
 Este es un proyecto **OpenSource**.
+
+## Agredecimientos:
+
+* Finlandia e Islanda (Pedro Martínez y el proyecto HandTech).

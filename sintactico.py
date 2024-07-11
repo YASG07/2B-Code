@@ -1,9 +1,12 @@
 import ply.yacc as yacc
 import ply.lex as lex
+import re
 from lexico import tokens, obtenerErrores, agregarError
 
 tablaErrores = obtenerErrores()
 tablaSimbolos = {}
+regexID = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
+regexBoolean = re.compile(r'(true|false)')
 
 def obtenerErroresSintactico():
     global tablaErrores
@@ -82,10 +85,9 @@ def p_errorclase2(prod):
     '''
     clase :  declaracion Class ID bloque
           |  Class ID bloque declaracion
-          
     ''' 
     #Cesar
-    agregarError(4, 'Semantico', 'Mal declaracion de variables ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    agregarError(10, 'Sintactico', 'Mal declaracion de variables ', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     prod[0] = 'Error'                  
 #gramatica para bloque de código
 def p_bloque(prod):
@@ -147,13 +149,30 @@ def p_declaracion(prod):
     #Yael
     if prod[2] not in tablaSimbolos:
         if len(prod) == 6:
-            prod[0] = ('declaracion', prod[1], prod[2], prod[4])
-            tablaSimbolos[prod[2]] = [prod[1], prod[4]]
+            if regexID.match(str(prod[4])) and not regexBoolean.match(str(prod[4])):
+                if prod[4] not in tablaSimbolos:
+                    agregarError(3, 'Semántico', 'Variable no declarada', prod[4], prod.lineno(4),obtenerColumna(prod.lexer.lexdata, prod, 4))
+                else:
+                    if tablaSimbolos[prod[4]][0] != prod[1]:
+                        agregarError(4, 'Semántico', f'{prod[4]} no puede ser convertido a "{prod[1]}"', prod[4], prod.lineno(4)+1, obtenerColumna(prod.lexer.lexdata, prod, 4))
+                    else:
+                        if len(tablaSimbolos[prod[4]]) == 2:
+                            prod[0] = ('declaracion', prod[1], prod[2], tablaSimbolos[prod[4]][1])
+                            tablaSimbolos[prod[2]] = [prod[1], tablaSimbolos[prod[4]][1]]
+                        else:
+                            agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[4], prod.lineno(4)+1,obtenerColumna(prod.lexer.lexdata, prod, 4))
+            else:
+                if prod[1] == type(prod[4]).__name__ or (prod[1] == 'String' and type(prod[4]) == str):
+                    prod[0] = ('declaracion', prod[1], prod[2], prod[4])
+                    tablaSimbolos[prod[2]] = [prod[1], prod[4]]
+                else:
+                    agregarError(4, 'Semántico', f'{prod[4]} no puede ser convertido a "{prod[1]}"', prod[4], prod.lineno(4), obtenerColumna(prod.lexer.lexdata, prod, 4))
         else:
             prod[0] = ('declaración', prod[1], prod[2])
             tablaSimbolos[prod[2]] = [prod[1]]
     else:
         agregarError(2, 'Semántico', 'Variable ya definida', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+
 #Gramatica para error de declaracion
 def p_errordeclaracion(prod):
     '''
@@ -173,8 +192,28 @@ def p_asignacion(prod):
     '''
     #Yael
     if prod[1] in tablaSimbolos:
-        prod[0] = ('asignacion', prod[1], prod[3])
-        tablaSimbolos[prod[1]].append(prod[3])
+        if regexID.match(str(prod[3])) and not regexBoolean.match(str(prod[3])):
+            if prod[3] not in tablaSimbolos:
+                agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3),obtenerColumna(prod.lexer.lexdata, prod, 3))
+            else:
+                if tablaSimbolos[prod[3]][0] != tablaSimbolos[prod[1]][0]:
+                    agregarError(4, 'Semántico', f'{prod[3]} no puede ser convertido a "{tablaSimbolos[prod[1]][0]}"', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+                else:
+                    if len(tablaSimbolos[prod[3]]) == 2: 
+                        prod[0] = ('asignacion', prod[1], tablaSimbolos[prod[3]][1])
+                        tablaSimbolos[prod[1]][1] = (tablaSimbolos[prod[3]][1])
+                    else:
+                        agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
+        else:
+            if tablaSimbolos[prod[1]][0] == type(prod[3]).__name__ or (tablaSimbolos[prod[1]][0] == 'String' and type(prod[3]) == str):
+                prod[0] = ('asignacion', prod[1], prod[3])
+                if len(tablaSimbolos[prod[1]]) == 2:
+                    tablaSimbolos[prod[1]][1] = prod[3]
+                else:
+                    tablaSimbolos[prod[1]].append(prod[3])
+            else:
+                agregarError(4, 'Semántico', f'{prod[3]} no puede ser convertido a "{tablaSimbolos[prod[1]][0]}"', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+
     else:
         agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
 #Gramtica para error de asignacion
@@ -249,14 +288,8 @@ def p_aritmetico(prod):
                | MOD
     '''
     prod[0] = prod[1]
-    #Verificación de operador aritmético no reconocido
-    operadores_validos = {'+', '-', '*', '/'}
-    #Rodolfo
-    if prod[1] not in operadores_validos:
-        agregarError(6,'Semántico', 'Operador aritmético no válido', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
 
-
-
+#producción para
 def p_operacionlogica(prod):
     '''
     operacionlogica : condicion AND condicion  
@@ -286,9 +319,8 @@ def p_errorcondicion(prod):
     condicion : expresion 
     '''
     #Cesar
-    if prod[1] not in tablaSimbolos:
-         
-         agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+    if prod[1] not in tablaSimbolos:    
+        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
     else:
         agregarError(7, 'Semántico', 'La condición debe ser de comparación', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
         prod[0] = 'Error'
@@ -302,28 +334,30 @@ def p_comparacion(prod):
                 | EQUALS
     '''
     prod[0] = prod[1]
-def p_errorcomparacion(prod):
-    '''
-    comparacion : ASSIGN
-                | MOD
-                | PLUS
-                | MINUS
-    '''
-    #Rodolfo
-    agregarError(9,'Semántico', 'Operador aritmético no válido', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
-    prod[0] = 'error'
       
-        
-
+#producción para ciclo for
 def p_ciclofor(prod):
     '''
     ciclofor : for ID in range ID bloque
              | for ID in range NUMBER bloque
     '''
-    prod[0] = ('cicloFor', prod[2], prod[5], prod[6])
+    if regexID.match(str(prod[5])) and not regexBoolean.match(str(prod[5])):
+        if prod[5] not in tablaSimbolos:
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[5], prod.lineno(5)+1,obtenerColumna(prod.lexer.lexdata, prod, 5))
+        else:
+            if tablaSimbolos[prod[5]][0] != 'int':
+                agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(5)+1, obtenerColumna(prod.lexer.lexdata, prod, 5))
+            else:
+                if len(tablaSimbolos[prod[5]]) == 2:
+                    prod[0] = ('cicloFor', prod[2], tablaSimbolos[prod[5]][1], prod[6])
+                else:
+                    agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[5], prod.lineno(5)+1,obtenerColumna(prod.lexer.lexdata, prod, 5))
+    else:        
+        prod[0] = ('cicloFor', prod[2], prod[5], prod[6])
+        
 def p_errorciclofor(prod):
     '''
-    ciclofor : for ID in range DECIMAL bloque
+    ciclofor : for ID in range error bloque
     '''
     #Cesar
     agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
@@ -339,7 +373,8 @@ def p_ciclowhile(prod):
 def p_si(prod):
     '''
     si : if LPARENT operacionlogica RPARENT bloque
-       | si else bloque 
+       | if LPARENT BOOLEAN RPARENT bloque
+       | si else bloque
     '''
     if len(prod) == 6:
         prod[0] = ('Si', prod[3], prod[5])
@@ -363,11 +398,31 @@ def p_parametros(prod):
     else:
         prod[0] = [prod[1], prod[2]]
 
+#producción para imprimir una cadena
 def p_imprimir(prod):
     '''
     imprimir : print LPARENT CADENA RPARENT FIN_LINEA
+             | print LPARENT ID RPARENT FIN_LINEA
     '''
-    prod[0] = ('print',prod[3])
+    if regexID.match(str(prod[3])) and not regexBoolean.match(str(prod[3])):
+        if prod[3] not in tablaSimbolos:
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
+        else:
+            if tablaSimbolos[prod[3]][0] != 'String':
+                agregarError(10, 'Semántico', 'El valor a imprimir no es una cadena', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+            else:
+                if len(tablaSimbolos[prod[3]]) == 2:
+                    prod[0] = ('print', tablaSimbolos[prod[3]][1])
+                else:
+                    agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
+    else:
+        prod[0] = ('print',prod[3])
+def p_errorimprimir(prod):
+    '''
+    imprimir : print LPARENT error RPARENT FIN_LINEA
+    '''
+    agregarError(10, 'Semántico', 'El valor a imprimir no es una cadena', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+    prod[0] = 'Error'
 
 #manejo de errores. PD: agreguen todas las gramaticas de error en esta area
 
@@ -440,7 +495,7 @@ def p_errordeclaracion3(prod):
                 | tipodato error ASSIGN CADENA FIN_LINEA
                 | tipodato error FIN_LINEA
     '''
-    agregarError(8, 'Sintactico', 'Nombre de variable no válido', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+    agregarError(8, 'Sintactico', 'Nombre de variable no válido', prod[2].value, prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
 def p_errordeclaracion4(prod):
     '''
     declaracion : tipodato ID expresion FIN_LINEA
