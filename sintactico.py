@@ -210,21 +210,43 @@ def p_expresion(prod):
         operador = prod[2]
         valor1 = prod[1]
         valor2 = prod[3]
-        #Rodolfo
-        if operador == '+':
-            prod[0] = valor1 + valor2
-        elif operador == '-':
-            prod[0] = valor1 - valor2
-        elif operador == '*':
-            prod[0] = valor1 * valor2
-        elif operador == '/':
+
+        # Verifica que los valores sean numéricos
+        try:
+            valor1 = float(valor1)
+        except ValueError:
+            agregarError(10, 'Semántico', 'Valor no numérico en la variable', valor1, prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+            return
+
+        try:
+            valor2 = float(valor2)
+        except ValueError:
+            agregarError(10, 'Semántico', 'Valor no numérico en la variable', valor2, prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+            return
+
+        # Solo verifica la división por cero
+        if operador == '/':
             if valor2 != 0:
                 prod[0] = valor1 / valor2
             else:
-                agregarError(5, 'Semántico', 'División por cero',valor2, prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+                agregarError(5, 'Semántico', 'División por cero', valor2, prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+        else:
+            # Verifica que el operador sea válido y realiza la operación correspondiente
+            if operador in ['+', '-', '*', '/']:
+                if operador == '+':
+                    prod[0] = valor1 + valor2
+                elif operador == '-':
+                    prod[0] = valor1 - valor2
+                elif operador == '*':
+                    prod[0] = valor1 * valor2
+                # La división ya fue manejada
+            else:
+                agregarError(10, 'Semántico', 'Operador aritmético no válido', operador, prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
     else:
         prod[0] = prod[1]
-    
+
+
+
 
 def p_valor(prod):
     '''
@@ -249,11 +271,7 @@ def p_aritmetico(prod):
                | MOD
     '''
     prod[0] = prod[1]
-    #Verificación de operador aritmético no reconocido
-    operadores_validos = {'+', '-', '*', '/'}
-    #Rodolfo
-    if prod[1] not in operadores_validos:
-        agregarError(6,'Semántico', 'Operador aritmético no válido', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+ 
 
 
 
@@ -277,9 +295,32 @@ def p_condicion(prod):
     '''
     #Cesar
     if prod[1] in tablaSimbolos:
-        prod[0] = ('condicion', prod[1], prod[2], prod[3])
+        if prod[3] in tablaSimbolos:
+            tipo1 = tablaSimbolos[prod[1]]
+            tipo2 = tablaSimbolos[prod[3]]
+            var1=tipo1[0]
+            var2=tipo2[0]
+            #print(var1, var2)
+            #Cesar
+            # Verificar si los tipos de datos son compatibles
+            #PARA DATOS int == String
+            if var1 == "String" and var2 == "int":
+                agregarError(11, 'Semántico', 'Datos incompatibles',prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+            #PARA DATOS STRING == INT
+            if var1 == "int" and var2 == "String":
+                agregarError(11, 'Semántico', 'Datos incompatibles',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+            #PARA DATOS float == String
+            if var1 == "float" and var2 == "String":
+                agregarError(11, 'Semántico', 'Datos incompatibles',prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+            #PARA DATOS String == float
+            if var1 == "String" and var2 == "float":
+                agregarError(11, 'Semántico', 'Datos incompatibles',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+            else:
+                prod[0] = ('condicion', prod[1], prod[2], prod[3])
+        else:
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
     else:
-        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
+        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
 #gramatica para error semantico del if
 def p_errorcondicion(prod):
     '''
@@ -464,3 +505,4 @@ def p_error(prod):
     
 
 parser = yacc.yacc()
+
