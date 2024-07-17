@@ -168,7 +168,7 @@ def p_declaracion(prod):
                 else:
                     agregarError(4, 'Semántico', f'{prod[4]} no puede ser convertido a "{prod[1]}"', prod[4], prod.lineno(4), obtenerColumna(prod.lexer.lexdata, prod, 4))
         else:
-            prod[0] = ('declaración', prod[1], prod[2])
+            prod[0] = ('declaracion', prod[1], prod[2])
             tablaSimbolos[prod[2]] = [prod[1]]
     else:
         agregarError(2, 'Semántico', 'Variable ya definida', prod[2], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
@@ -319,11 +319,11 @@ def p_operacionlogica(prod):
                     | condicion  
     '''
     if len(prod) == 4:
-        prod[0] = ('opLogica', prod[1], prod[2], prod[3])
+        prod[0] = (prod[1], prod[2], prod[3])
     elif len(prod) == 3:
-        prod[0] = ('opLogica', prod[1], prod[2])
+        prod[0] = (prod[1], prod[2])
     elif len(prod) == 2:
-        prod[0] = ('opLogica', prod[1])
+        prod[0] = (prod[1])
 
 def p_condicion(prod):
     '''

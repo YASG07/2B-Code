@@ -21,6 +21,7 @@ codigoIntermedio = ''
 def map(asa):
     #detiene el recorrido al encontrar un error o al terminar el ASA
     if not asa:
+        reiniciarGI()
         return
     
     #recupera el nombre del nodo
@@ -62,6 +63,10 @@ def map(asa):
         print(nodo)
         codigoIntermedio += str(asa[1])+'\n'
 
+    elif nodo == 'condicion':
+        print(nodo)
+        codigoIntermedio += str(asa[1])+'\n'
+
     elif nodo == 'cicloFor':
         print(nodo)
         map(asa[2])
@@ -72,10 +77,12 @@ def map(asa):
 
     elif nodo == 'Si':
         print(nodo)
+        map(asa[1])
         map(asa[2])
 
     elif nodo == 'SiNo':
         print(nodo)
+        map(asa[1])
         map(asa[2])
 
     elif nodo == 'funcion':
@@ -88,6 +95,7 @@ def map(asa):
 
     #Detiene la ejecución si encuentra un error
     elif nodo == 'Error':
+        reiniciarGI()
         return
             
 codigo = '''
@@ -101,6 +109,9 @@ Class Mundo1 {
     }
     if (enemigos>fuerza){
 
+    }
+    else {
+    
     }
 }
 '''
