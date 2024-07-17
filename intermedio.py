@@ -10,6 +10,9 @@ def reiniciarGI():
     fase = 1
     longitudASA = 0
     codigoIntermedio = ''
+def obtener_codigo_intermedio():
+    return codigoIntermedio
+
 
 #variables de control de lectura de ASA    
 longitudASA = 0
@@ -65,7 +68,8 @@ def map(asa):
 
     elif nodo == 'condicion':
         print(nodo)
-        codigoIntermedio += str(asa[1])+'\n'
+        codigoIntermedio += 'if '+str(asa[1])+' '+str(asa[2])+' '+str(asa[3])+' goto'+'\n'
+        
 
     elif nodo == 'cicloFor':
         print(nodo)
@@ -74,11 +78,16 @@ def map(asa):
     elif nodo == 'cicloWhile':
         print(nodo)
         map(asa[2])
-
+   
     elif nodo == 'Si':
         print(nodo)
         map(asa[1])
         map(asa[2])
+        print(nodo)
+       
+       
+          
+
 
     elif nodo == 'SiNo':
         print(nodo)
@@ -115,7 +124,7 @@ Class Mundo1 {
     }
 }
 '''
-resultado = parser.parse(codigo)
-print(resultado)
-map(resultado)
-print(codigoIntermedio)
+#resultado = parser.parse(codigo)
+#print(resultado)
+#map(resultado)
+#print(codigoIntermedio)

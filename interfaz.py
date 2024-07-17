@@ -4,6 +4,7 @@ from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox as mb
 from lexico import tokens, reservadas,analizador,tablaErrores
 from sintactico import parser, yacc,reiniciarAnalizadorSintactico
+from intermedio import map,reiniciarGI,obtener_codigo_intermedio
 
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -188,6 +189,7 @@ def change_bg_color(self):
 # Variables para almacenar las referencias de las ventanas
 lexico_window = None
 sintactico_window = None
+intermedio_window = None
 tabla_window = None
 
 def cerrar_ventana(window):
@@ -195,7 +197,7 @@ def cerrar_ventana(window):
         window.destroy()
         window = None
     return window
-
+#----------------------------------Analisis Lexico------------------------------------------------------------------
 def mostrarAnalisisLexico2(tokens):
     global lexico_window
     lexico_window = cerrar_ventana(lexico_window)  # Cerrar la ventana existente si hay una
@@ -270,10 +272,8 @@ def analisisCompleto(resul=None):
         
         mostrarAnalisisLexico2(a_tok)
 
-        #mostrarAnalisisSintactico2(a_tok)
         # Mostrar errores léxicos si existen
         imprimir_errores()
-        #imprimir_errores_semanticos()
         
         # Análisis sintáctico
         reiniciarAnalizadorSintactico()
@@ -285,20 +285,18 @@ def analisisCompleto(resul=None):
             
         
         except yacc.YaccError as e:
-        #      #imprimir_errores_sintacticos()
             scrollAnalisis.insert(END, "Errores Sintácticos:\n")
             scrollAnalisis.insert(END, str(e))
             
         # #  # Mostrar errores sintácticos si existen
         imprimir_errores()
-        # # #imprimir_errores_semanticos()
         # # # Volver a deshabilitar la edición del widget
         scrollAnalisis.config(state="disabled")
         scrollAnalisis.insert(END, "Compilacion sin error\n")
     else:
         mb.showwarning("ERROR", "Debes escribir código")
     
-#------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------Mostrar Errores--------------------------------------------------------------------------------
 def imprimir_errores():
      scrollAnalisis.config(state="normal")  # Cambiar el estado a normal para permitir la edición
      scrollAnalisis.delete(1.0, END)  # Borra el contenido actual del `ScrolledText`
@@ -312,7 +310,7 @@ def imprimir_errores():
          texto_error += f"Columna: {error['Columna']}\n"
          scrollAnalisis.insert(INSERT, texto_error)
      scrollAnalisis.config(state="disabled")  # Volver a deshabilitar la edición
-
+#----------------------------------Analisis Sintactico------------------------------------------------------------------------
 def mostrarAnalisisSintactico2(data):
     global sintactico_window
     sintactico_window = cerrar_ventana(sintactico_window)
@@ -338,8 +336,6 @@ def mostrarAnalisisSintactico2(data):
         for item in data:
             text_area.insert(END, str(item) + '\n')
     text_area.config(state="disabled")  # Volver a deshabilitar la edición
-
-
     
 def analisisSintactico():
     cadena = scroll_text_widget.get_text()
@@ -351,8 +347,6 @@ def analisisSintactico():
             scrollAnalisis.config(state="normal")  # Cambiar el estado a normal para permitir la edición
             scrollAnalisis.delete(1.0, END)  # Borra el contenido actual del `ScrolledText`
             scrollAnalisis.insert(END, "Analisis Correcto\n")
-            #errores_sintacticos = (imprimir_errores_sintacticos())#(imprimir_errores_sintacticos())
-            #scrollAnalisis.insert(END, errores_sintacticos)
             scrollAnalisis.config(state="disabled")  # Volver a deshabilitar la edición
         except yacc.YaccError as e:
             imprimir_errores(e)
@@ -360,6 +354,48 @@ def analisisSintactico():
     else:
         mb.showwarning("ERROR", "Debes escribir código")
 
+#-----------------------------codigo Intemedio--------------------------------------------------------
+def mostrarcodigoIntermedio(data):
+    global intermedio_window
+    intermedio_window = cerrar_ventana(intermedio_window)
+    intermedio_window = tk.Toplevel()
+    intermedio_window.title("Codigo Intermewdio")
+    # Crear un Text widget con un Scrollbar
+    text_area = Text(intermedio_window, wrap='word')
+    scrollbar = Scrollbar(intermedio_window, command=text_area.yview)
+    text_area.configure(yscrollcommand=scrollbar.set)
+
+    # Configurar la posición de los widgets
+    text_area.pack(side='left', fill='both', expand=True)
+    scrollbar.pack(side='right', fill='y')
+
+    # Insertar datos en el Text widget
+    text_area.config(state="normal")  # Cambiar el estado a normal para permitir la edición
+    text_area.delete(1.0, END)  # Borrar el contenido previo
+    if data is None:
+        text_area.insert(END, "No se encontraron datos para mostrar.\n")
+    else:
+            text_area.insert(END,"======================  CODIGO INTERMEDIO ===========================\n")
+            text_area.insert(END, data + '\n')
+            text_area.insert(END,"=====================================================================\n")
+    text_area.config(state="disabled")  # Volver a deshabilitar la edición
+
+def codigointermedio():
+    cadena = scroll_text_widget.get_text()
+    reiniciarAnalizadorSintactico()
+    reiniciarGI()
+    if len(cadena) > 0:
+        
+        try:
+            resultado = parser.parse(cadena)
+            map(resultado)
+            
+            mostrarcodigoIntermedio(obtener_codigo_intermedio())
+        except yacc.YaccError as e:
+            imprimir_errores(e)
+            mb.showerror("Error", str(e))
+    else:
+        mb.showwarning("ERROR", "Debes escribir código")
 
 
 
@@ -497,7 +533,7 @@ font_menu.add_command(label="20", command=lambda: cambiar_tamaño_letra(20))
 
 menubar.add_cascade(label="Tamaño de la letra", menu=font_menu)
 menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON 
-#menubar.add_radiobutton(label="Color de fondo", command=self.change_bg_color)
+menubar.add_radiobutton(label="Codigo Intermedio", command=codigointermedio)
 
 root.config(menu=menubar)
 root.mainloop()
