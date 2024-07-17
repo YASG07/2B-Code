@@ -60,7 +60,11 @@ def map(asa):
 
     elif nodo == 'declaracion':
         print(nodo)
-        codigoIntermedio += str(asa[2])+'\n' 
+        if len(asa) > 3:
+            if asa[3] is not None:
+                codigoIntermedio += str(asa[2]) + ' = ' + str(asa[3]) + '\n'
+        else:
+                codigoIntermedio += str(asa[2]) + '\n'
 
     elif nodo == 'asignacion':
         print(nodo)
@@ -114,7 +118,8 @@ Class Mundo1 {
     String Mensaje = "Perdiste"$
 
     for in range 4{
- 	    int af$	
+ 	    int af
+        $	
     }
     if (enemigos>fuerza){
 
@@ -124,7 +129,7 @@ Class Mundo1 {
     }
 }
 '''
-#resultado = parser.parse(codigo)
-#print(resultado)
-#map(resultado)
-#print(codigoIntermedio)
+resultado = parser.parse(codigo)
+print(resultado)
+map(resultado)
+print(codigoIntermedio)

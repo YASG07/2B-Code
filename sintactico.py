@@ -401,10 +401,10 @@ def p_ciclofor(prod):
         
 def p_errorciclofor(prod):
     '''
-    ciclofor : for ID in range error bloque
+    ciclofor : for in range error bloque
     '''
     #Cesar
-    agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2), obtenerColumna(prod.lexer.lexdata, prod, 2))
+    agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
     prod[0] = 'Error'
     
 def p_ciclowhile(prod):
