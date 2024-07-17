@@ -60,15 +60,14 @@ def map(asa):
 
     elif nodo == 'declaracion':
         print(nodo)
-        if len(asa) > 3:
-            if asa[3] is not None:
-                codigoIntermedio += str(asa[2]) + ' = ' + str(asa[3]) + '\n'
+        if len(asa) > 3 and asa[3] is not None:
+                codigoIntermedio += str(asa[2]) +' = '+ str(asa[3]) + '\n'
         else:
-                codigoIntermedio += str(asa[2]) + '\n'
+                codigoIntermedio += str(asa[2]) +'\n'
 
     elif nodo == 'asignacion':
         print(nodo)
-        codigoIntermedio += str(asa[1])+'\n'
+        codigoIntermedio += str(asa[1]) +'\n'
 
     elif nodo == 'condicion':
         print(nodo)
