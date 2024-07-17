@@ -285,8 +285,6 @@ def p_expresion(prod):
         prod[0] = prod[1]
 
 
-
-
 def p_valor(prod):
     '''
     valor : ID
@@ -384,22 +382,22 @@ def p_comparacion(prod):
 #producción para ciclo for
 def p_ciclofor(prod):
     '''
-    ciclofor : for ID in range ID bloque
-             | for ID in range NUMBER bloque
+    ciclofor : for in range ID bloque
+             | for in range NUMBER bloque
     '''
-    if regexID.match(str(prod[5])) and not regexBoolean.match(str(prod[5])):
-        if prod[5] not in tablaSimbolos:
-            agregarError(3, 'Semántico', 'Variable no declarada', prod[5], prod.lineno(5)+1,obtenerColumna(prod.lexer.lexdata, prod, 5))
+    if regexID.match(str(prod[4])) and not regexBoolean.match(str(prod[4])):
+        if prod[4] not in tablaSimbolos:
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[4], prod.lineno(4)+1,obtenerColumna(prod.lexer.lexdata, prod, 4))
         else:
-            if tablaSimbolos[prod[5]][0] != 'int':
-                agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(5)+1, obtenerColumna(prod.lexer.lexdata, prod, 5))
+            if tablaSimbolos[prod[4]][0] != 'int':
+                agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[4], prod.lineno(4)+1, obtenerColumna(prod.lexer.lexdata, prod, 4))
             else:
-                if len(tablaSimbolos[prod[5]]) == 2:
-                    prod[0] = ('cicloFor', prod[2], tablaSimbolos[prod[5]][1], prod[6])
+                if len(tablaSimbolos[prod[4]]) == 2:
+                    prod[0] = ('cicloFor', tablaSimbolos[prod[4]][1], prod[5])
                 else:
-                    agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[5], prod.lineno(5)+1,obtenerColumna(prod.lexer.lexdata, prod, 5))
+                    agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[4], prod.lineno(4)+1,obtenerColumna(prod.lexer.lexdata, prod, 4))
     else:        
-        prod[0] = ('cicloFor', prod[2], prod[5], prod[6])
+        prod[0] = ('cicloFor', prod[4], prod[5])
         
 def p_errorciclofor(prod):
     '''
@@ -432,7 +430,10 @@ def p_funcion(prod):
     funcion : func ID LPARENT RPARENT bloque
             | func ID LPARENT parametros RPARENT bloque
     '''
-    prod[0] = ('funcion', prod[2])
+    if len(prod) == 6:
+        prod[0] = ('funcion', prod[2], prod[5])
+    else:
+        prod[0] = ('funcionParametrizada', prod[2], prod[4], prod[6])
 
 def p_parametros(prod):
     '''
@@ -565,4 +566,3 @@ def p_error(prod):
     
 
 parser = yacc.yacc()
-

@@ -3,21 +3,10 @@ Class Mundo1 {
 	int fuerza = 2$
     String Mensaje = "Perdiste"$
 
-for enmigos in range 4{
- 	int af$
-	
+    for in range 4{
+ 	    int af$	
+    }
+    if (enemigos>fuerza){
+
+    }
 }
-if (enemigos>fuerza){
-}
-
-
-
-}
-
-
-
-
-
-
-
-
