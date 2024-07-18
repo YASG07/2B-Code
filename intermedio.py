@@ -6,15 +6,18 @@ def reiniciarGI():
     global longitudASA
     global fase
     global codigoIntermedio
+    global contadorLabel
     ASA = []
     fase = 1
     longitudASA = 0
     codigoIntermedio = ''
+    contadorLabel = 0
 def obtener_codigo_intermedio():
     return codigoIntermedio
 
 
-#variables de control de lectura de ASA    
+#variables de control de lectura de ASA
+contadorLabel = 0    
 longitudASA = 0
 fase = 1
 ASA = []
@@ -39,6 +42,7 @@ def map(asa):
         longitudASA = len(asa)
         global fase
         global codigoIntermedio
+        global contadorLabel
         #invoca la recursividad del metodo map
         map(asa[1])
 
@@ -61,40 +65,57 @@ def map(asa):
     elif nodo == 'declaracion':
         print(nodo)
         if len(asa) > 3 and asa[3] is not None:
-                codigoIntermedio += str(asa[2]) +' = '+ str(asa[3]) + '\n'
+                codigoIntermedio += f'{asa[2]} = {asa[3]}\n'
         else:
-                codigoIntermedio += str(asa[2]) +'\n'
+                codigoIntermedio += f'{asa[2]} = 0\n' 
 
     elif nodo == 'asignacion':
         print(nodo)
-        codigoIntermedio += str(asa[1]) +'\n'
+        codigoIntermedio += f"{asa[1]} = {asa[2]}\n"
 
     elif nodo == 'condicion':
         print(nodo)
-        codigoIntermedio += 'if '+str(asa[1])+' '+str(asa[2])+' '+str(asa[3])+' goto'+'\n'
-        
+        codigoIntermedio += f'if {asa[1]} {asa[2]} {asa[3]} goto label{contadorLabel}\ngoto label{contadorLabel+1}\n'
 
     elif nodo == 'cicloFor':
         print(nodo)
+        codigoIntermedio += f'T1 = {asa[1]}\nlabel{contadorLabel}:\n'
+        contadorLabel += 1
+        codigoIntermedio += f'if T1 > 0 goto label{contadorLabel}\ngoto label{contadorLabel+1}\n'
+        codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
+        codigoIntermedio += f'T2 = T1 - 1\nT1 = T2\ngoto label{contadorLabel-1}\n'
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
 
     elif nodo == 'cicloWhile':
         print(nodo)
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
    
     elif nodo == 'Si':
         print(nodo)
+        contadorLabel += 1
         map(asa[1])
+        codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
-        print(nodo)
-       
-       
-          
-
-
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
     elif nodo == 'SiNo':
         print(nodo)
+        condicion = asa[1][1]
+        if condicion[2] == '>':
+            codigoIntermedio += f'if {condicion[1]} < {condicion[3]} goto label{contadorLabel+2}\n'
+        if condicion[2] == '==':
+            codigoIntermedio += f'if {condicion[1]} != {condicion[3]} goto label{contadorLabel+2}\n'
+        if condicion[2] == '<':
+            codigoIntermedio += f'if {condicion[1]} > {condicion[3]} goto label{contadorLabel+2}\n'
+        if condicion[2] == '!=':
+            codigoIntermedio += f'if {condicion[1]} == {condicion[3]} goto label{contadorLabel+2}\n'
         map(asa[1])
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
 
     elif nodo == 'funcion':
@@ -109,26 +130,3 @@ def map(asa):
     elif nodo == 'Error':
         reiniciarGI()
         return
-            
-codigo = '''
-Class Mundo1 {
-    float enemigos = (5/2)*3$
-	int fuerza = 2$
-    String Mensaje = "Perdiste"$
-
-    for in range 4{
- 	    int af
-        $	
-    }
-    if (enemigos>fuerza){
-
-    }
-    else {
-    
-    }
-}
-'''
-resultado = parser.parse(codigo)
-print(resultado)
-map(resultado)
-print(codigoIntermedio)
