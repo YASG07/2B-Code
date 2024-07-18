@@ -201,7 +201,7 @@ def p_asignacion(prod):
                 else:
                     if len(tablaSimbolos[prod[3]]) == 2: 
                         prod[0] = ('asignacion', prod[1], tablaSimbolos[prod[3]][1])
-                        tablaSimbolos[prod[1]][1] = (tablaSimbolos[prod[3]][1])
+                        tablaSimbolos[prod[3]][1] = (tablaSimbolos[prod[3]][1])
                     else:
                         agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
         else:
@@ -249,6 +249,7 @@ def p_expresion(prod):
         operador = prod[2]
         valor1 = prod[1]
         valor2 = prod[3]
+        
 
         # Verifica que los valores sean numéricos
         try:
@@ -267,6 +268,8 @@ def p_expresion(prod):
         if operador == '/':
             if valor2 != 0:
                 prod[0] = valor1 / valor2
+                if prod[0].is_integer():
+                    prod[0] = int(prod[0])
             else:
                 agregarError(5, 'Semántico', 'División por cero', valor2, prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
         else:
@@ -274,11 +277,17 @@ def p_expresion(prod):
             if operador in ['+', '-', '*', '/']:
                 if operador == '+':
                     prod[0] = valor1 + valor2
+                    prod[1] = valor1 
+                    prod[2] = '+'
+                    prod[3] = valor2
                 elif operador == '-':
                     prod[0] = valor1 - valor2
                 elif operador == '*':
                     prod[0] = valor1 * valor2
                 # La división ya fue manejada
+                 # Convertir a entero si el resultado es un entero
+                if prod[0].is_integer():
+                    prod[0] = int(prod[0])
             else:
                 agregarError(10, 'Semántico', 'Operador aritmético no válido', operador, prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
     else:

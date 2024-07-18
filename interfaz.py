@@ -277,12 +277,13 @@ def analisisCompleto(resul=None):
         
         # Análisis sintáctico
         reiniciarAnalizadorSintactico()
+        reiniciarGI()
         try:
             resultado = parser.parse(cadena)
             print(resultado)
-            
+            map(resultado)
             mostrarAnalisisSintactico2(resultado)
-            
+            mostrarcodigoIntermedio(obtener_codigo_intermedio())
         
         except yacc.YaccError as e:
             scrollAnalisis.insert(END, "Errores Sintácticos:\n")
@@ -533,7 +534,7 @@ font_menu.add_command(label="20", command=lambda: cambiar_tamaño_letra(20))
 
 menubar.add_cascade(label="Tamaño de la letra", menu=font_menu)
 menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON 
-menubar.add_radiobutton(label="Codigo Intermedio", command=codigointermedio)
+#menubar.add_radiobutton(label="Codigo Intermedio", command=codigointermedio)
 
 root.config(menu=menubar)
 root.mainloop()
