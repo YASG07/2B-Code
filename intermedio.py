@@ -75,13 +75,13 @@ def map(asa):
 
     elif nodo == 'condicion':
         print(nodo)
-        codigoIntermedio += f'if {asa[1]} {asa[2]} {asa[3]} goto label{contadorLabel}\ngoto label{contadorLabel+1}\n'
+        codigoIntermedio += f'if {asa[1]} {asa[2]} {asa[3]} goto label{contadorLabel}\ngoto label{contadorLabel+2}\n'
 
     elif nodo == 'cicloFor':
         print(nodo)
         codigoIntermedio += f'T1 = {asa[1]}\nlabel{contadorLabel}:\n'
         contadorLabel += 1
-        codigoIntermedio += f'if T1 > 0 goto label{contadorLabel}\ngoto label{contadorLabel+1}\n'
+        codigoIntermedio += f'  if T1 > 0 goto label{contadorLabel}\ngoto label{contadorLabel+1}\n'
         codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
         codigoIntermedio += f'T2 = T1 - 1\nT1 = T2\ngoto label{contadorLabel-1}\n'
@@ -101,22 +101,25 @@ def map(asa):
         codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
         contadorLabel += 1
-        codigoIntermedio += f'label{contadorLabel}:\n'
+        #codigoIntermedio += f'label{contadorLabel+1}:\n'
+    
     elif nodo == 'SiNo':
         print(nodo)
         condicion = asa[1][1]
         if condicion[2] == '>':
-            codigoIntermedio += f'if {condicion[1]} < {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'  if {condicion[1]} < {condicion[3]} goto label{contadorLabel+2}\n'
         if condicion[2] == '==':
-            codigoIntermedio += f'if {condicion[1]} != {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'  if {condicion[1]} != {condicion[3]} goto label{contadorLabel+2}\n'
         if condicion[2] == '<':
-            codigoIntermedio += f'if {condicion[1]} > {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'  if {condicion[1]} > {condicion[3]} goto label{contadorLabel+2}\n'
         if condicion[2] == '!=':
-            codigoIntermedio += f'if {condicion[1]} == {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'  if {condicion[1]} == {condicion[3]} goto label{contadorLabel+2}\n'
         map(asa[1])
         contadorLabel += 1
-        codigoIntermedio += f'label{contadorLabel}:\n'
+        codigoIntermedio += f'label{contadorLabel-1}:\n'
         map(asa[2])
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel-1}:\n'
 
     elif nodo == 'funcion':
         print(nodo)
@@ -125,7 +128,7 @@ def map(asa):
     elif nodo == 'funcionParametrizada':
         print(nodo)
         map(asa[3])
-
+        codigoIntermedio+= 'call '+str(asa[1])+' ('+str(asa[2][1])+','+str(asa[2][3])+') '+'\n'
     #Detiene la ejecución si encuentra un error
     elif nodo == 'Error':
         reiniciarGI()

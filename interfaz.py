@@ -360,7 +360,7 @@ def mostrarcodigoIntermedio(data):
     global intermedio_window
     intermedio_window = cerrar_ventana(intermedio_window)
     intermedio_window = tk.Toplevel()
-    intermedio_window.title("Codigo Intermewdio")
+    intermedio_window.title("Codigo Intermedio")
     # Crear un Text widget con un Scrollbar
     text_area = Text(intermedio_window, wrap='word')
     scrollbar = Scrollbar(intermedio_window, command=text_area.yview)
