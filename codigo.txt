@@ -1,12 +1,22 @@
 Class Mundo1 {
-    int enemigos = 5$
+    float enemigos = (5/2)*3$
+    int habilidad = 3$
 	int fuerza = 2$
     String Mensaje = "Perdiste"$
 
     for in range 4{
  	    int af$	
+         af=fuerza$
+         
     }
     if (enemigos>fuerza){
+        int ab$
+    }else{
+	    func sumar (int a, int b){
 
+        }
     }
+   
+int hola$
+    
 }
