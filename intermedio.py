@@ -1,6 +1,6 @@
 from sintactico import parser
 
-#reinicia la generación de código intermedio
+# reinicia la generación de código intermedio
 def reiniciarGI():
     global ASA
     global longitudASA
@@ -12,28 +12,28 @@ def reiniciarGI():
     longitudASA = 0
     codigoIntermedio = ''
     contadorLabel = 0
+
 def obtener_codigo_intermedio():
     return codigoIntermedio
 
-
-#variables de control de lectura de ASA
+# variables de control de lectura de ASA
 contadorLabel = 0    
 longitudASA = 0
 fase = 1
 ASA = []
 codigoIntermedio = ''
 
-#recorrido del árbol de sintaxis abstracta
+# recorrido del árbol de sintaxis abstracta
 def map(asa):
-    #detiene el recorrido al encontrar un error o al terminar el ASA
+    # detiene el recorrido al encontrar un error o al terminar el ASA
     if not asa:
         reiniciarGI()
         return
     
-    #recupera el nombre del nodo
+    # recupera el nombre del nodo
     nodo = asa[0]
 
-    #evalua si el nombre del nodo es programa
+    # evalúa si el nombre del nodo es programa
     if nodo == 'programa':
         print(nodo)
         global ASA
@@ -43,31 +43,31 @@ def map(asa):
         global fase
         global codigoIntermedio
         global contadorLabel
-        #invoca la recursividad del metodo map
+        # invoca la recursividad del método map
         map(asa[1])
 
-    #evalua si el nombre del nodo es clase
+    # evalúa si el nombre del nodo es clase
     elif nodo == 'clase':
         print(nodo)
-        #invoca la recursividad del metodo map
+        # invoca la recursividad del método map
         map(asa[2])
 
     elif nodo == 'bloque':
         print(nodo)
-        #por cada instruccion en el bloque invoca recursividad
+        # por cada instrucción en el bloque invoca recursividad
         for instruccion in asa[1]:
             map(instruccion)
         fase += 1
-        #cuando la fase alcance la longitud del ASA original termina el recorrido
+        # cuando la fase alcance la longitud del ASA original termina el recorrido
         if fase < longitudASA:
             map(ASA[fase])
 
     elif nodo == 'declaracion':
         print(nodo)
         if len(asa) > 3 and asa[3] is not None:
-                codigoIntermedio += f'{asa[2]} = {asa[3]}\n'
+            codigoIntermedio += f'{asa[2]} = {asa[3]}\n'
         else:
-                codigoIntermedio += f'{asa[2]} = 0\n' 
+            codigoIntermedio += f'{asa[2]} = 0\n' 
 
     elif nodo == 'asignacion':
         print(nodo)
@@ -102,21 +102,31 @@ def map(asa):
         map(asa[2])
         contadorLabel += 1
         codigoIntermedio += f'label{contadorLabel}:\n'
+
     elif nodo == 'SiNo':
         print(nodo)
+        # Generación de etiquetas para la condición
         condicion = asa[1][1]
         if condicion[2] == '>':
             codigoIntermedio += f'if {condicion[1]} < {condicion[3]} goto label{contadorLabel+2}\n'
-        if condicion[2] == '==':
+        elif condicion[2] == '==':
             codigoIntermedio += f'if {condicion[1]} != {condicion[3]} goto label{contadorLabel+2}\n'
-        if condicion[2] == '<':
+        elif condicion[2] == '<':
             codigoIntermedio += f'if {condicion[1]} > {condicion[3]} goto label{contadorLabel+2}\n'
-        if condicion[2] == '!=':
+        elif condicion[2] == '!=':
             codigoIntermedio += f'if {condicion[1]} == {condicion[3]} goto label{contadorLabel+2}\n'
+
+        # Marca el inicio del bloque de código para el caso verdadero
         map(asa[1])
+        # Incrementa el contador para la nueva etiqueta
         contadorLabel += 1
         codigoIntermedio += f'label{contadorLabel}:\n'
+        
+        # Procesa el bloque de código para el caso falso
         map(asa[2])
+        # Incrementa el contador para la nueva etiqueta
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
 
     elif nodo == 'funcion':
         print(nodo)
@@ -125,8 +135,9 @@ def map(asa):
     elif nodo == 'funcionParametrizada':
         print(nodo)
         map(asa[3])
+        codigoIntermedio+= 'call '+str(asa[1])+' ('+str(asa[2][1])+','+str(asa[2][3])+') '+'\n'
 
-    #Detiene la ejecución si encuentra un error
+    # Detiene la ejecución si encuentra un error
     elif nodo == 'Error':
         reiniciarGI()
         return
