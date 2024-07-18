@@ -100,9 +100,13 @@ def map(asa):
         map(asa[1])
         codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
-        contadorLabel += 1
-        #codigoIntermedio += f'label{contadorLabel+1}:\n'
-    
+       
+        if (nodo == 'SiNo') is not asa[2]: 
+            contadorLabel += 1
+           
+        else:
+            contadorLabel += 1
+            codigoIntermedio += f'label{contadorLabel+1}:\n'
     elif nodo == 'SiNo':
         print(nodo)
         condicion = asa[1][1]
