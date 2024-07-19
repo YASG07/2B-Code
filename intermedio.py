@@ -1,5 +1,3 @@
-from sintactico import parser
-
 # reinicia la generación de código intermedio
 def reiniciarGI():
     global ASA
@@ -75,7 +73,7 @@ def map(asa):
 
     elif nodo == 'condicion':
         print(nodo)
-        codigoIntermedio += f'if {asa[1]} {asa[2]} {asa[3]} goto label{contadorLabel}\ngoto label{contadorLabel+2}\n'
+        codigoIntermedio += f'if {asa[1]} {asa[2]} {asa[3]} goto label{contadorLabel}\n'
 
     elif nodo == 'cicloFor':
         print(nodo)
@@ -93,34 +91,44 @@ def map(asa):
         print(nodo)
         contadorLabel += 1
         codigoIntermedio += f'label{contadorLabel}:\n'
+        contadorLabel += 1
+        map(asa[1])
+        codigoIntermedio += f'goto label{contadorLabel+1}\nlabel{contadorLabel}:\n'
         map(asa[2])
+        codigoIntermedio += f'goto label{contadorLabel-1}\n'
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
    
     elif nodo == 'Si':
         print(nodo)
         contadorLabel += 1
         map(asa[1])
+        codigoIntermedio += f'goto label{contadorLabel+1}\n'
         codigoIntermedio += f'label{contadorLabel}:\n'
         map(asa[2])
+        contadorLabel += 1
+        codigoIntermedio += f'label{contadorLabel}:\n'
 
     elif nodo == 'SiNo':
         print(nodo)
         # Generación de etiquetas para la condición
+        contadorLabel += 1
         condicion = asa[1][1]
+        codigoIntermedio += f'if {condicion[1]} {condicion[2]} {condicion[3]} goto label{contadorLabel}\n'
         if condicion[2] == '>':
-            codigoIntermedio += f'if {condicion[1]} < {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'if {condicion[1]} < {condicion[3]} goto label{contadorLabel+1}\n'
         elif condicion[2] == '==':
-            codigoIntermedio += f'if {condicion[1]} != {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'if {condicion[1]} != {condicion[3]} goto label{contadorLabel+1}\n'
         elif condicion[2] == '<':
-            codigoIntermedio += f'if {condicion[1]} > {condicion[3]} goto label{contadorLabel+2}\n'
+            codigoIntermedio += f'if {condicion[1]} > {condicion[3]} goto label{contadorLabel+1}\n'
         elif condicion[2] == '!=':
-            codigoIntermedio += f'if {condicion[1]} == {condicion[3]} goto label{contadorLabel+2}\n'
-
-        # Marca el inicio del bloque de código para el caso verdadero
-        map(asa[1])
-        # Incrementa el contador para la nueva etiqueta
+            codigoIntermedio += f'if {condicion[1]} == {condicion[3]} goto label{contadorLabel+1}\n'
+        codigoIntermedio += f'goto label{contadorLabel+2}\nlabel{contadorLabel}:\n'
+        # Procesa el bloque código para el caso verdadero
+        map(asa[1][2])
+        # Incrementa el contador y agrega una nueva etiqueta
         contadorLabel += 1
         codigoIntermedio += f'label{contadorLabel}:\n'
-        
         # Procesa el bloque de código para el caso falso
         map(asa[2])
         # Incrementa el contador para la nueva etiqueta
