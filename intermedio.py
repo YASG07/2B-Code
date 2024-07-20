@@ -113,6 +113,9 @@ def map(asa):
         print(nodo)
         # Generación de etiquetas para la condición
         contadorLabel += 1
+        if not asa[1][1]:
+            reiniciarGI()
+            return
         condicion = asa[1][1]
         codigoIntermedio += f'if {condicion[1]} {condicion[2]} {condicion[3]} goto label{contadorLabel}\n'
         if condicion[2] == '>':

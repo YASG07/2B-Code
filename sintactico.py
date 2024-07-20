@@ -250,6 +250,21 @@ def p_expresion(prod):
         valor1 = prod[1]
         valor2 = prod[3]
         
+        # Verifica que las variables tengan un valor asociado 
+        if valor1 in tablaSimbolos:
+            if len(tablaSimbolos[valor1]) == 2:
+                valor1 = tablaSimbolos[valor1][1]
+            else:
+                agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
+        elif regexID.match(str(valor1)) and not regexBoolean.match(str(valor1)):
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
+        if valor2 in tablaSimbolos:
+            if len(tablaSimbolos[valor2]) == 2:
+                valor2 = tablaSimbolos[valor2][1]
+            else:
+                agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
+        elif regexID.match(str(valor2)) and not regexBoolean.match(str(valor2)):
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
 
         # Verifica que los valores sean numéricos
         try:
@@ -257,13 +272,11 @@ def p_expresion(prod):
         except ValueError:
             agregarError(10, 'Semántico', 'Valor no numérico en la variable', valor1, prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
             return
-
         try:
             valor2 = float(valor2)
         except ValueError:
             agregarError(10, 'Semántico', 'Valor no numérico en la variable', valor2, prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
             return
-
         # Solo verifica la división por cero
         if operador == '/':
             if valor2 != 0:
@@ -356,16 +369,50 @@ def p_condicion(prod):
                 agregarError(6, 'Semántico', 'Datos incompatibles',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
             #PARA DATOS float == String
             if var1 == "float" and var2 == "String":
-                agregarError(6, 'Semántico', 'Datos incompatibles',prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+                agregarError(6, 'Semántico', 'Datos incompatibles',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
             #PARA DATOS String == float
             if var1 == "String" and var2 == "float":
-                agregarError(6, 'Semántico', 'Datos incompatibles',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+                agregarError(6, 'Semántico', 'Datos incompatibles',prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+            if var1 != 'String' and var2 != 'String':
+                if len(tipo1) == 2 and len(tipo2) == 2:
+                    prod[1] = tipo1[1]
+                    prod[3] = tipo2[1]
+                    prod[0] = ('condicion', prod[1], prod[2], prod[3])
+                else:
+                    agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
+
+        else: 
+            if regexID.match(str(prod[3])) and not regexBoolean.match(str(prod[3])):
+                agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
             else:
-                prod[0] = ('condicion', prod[1], prod[2], prod[3])
-        else:
-            agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+                if tablaSimbolos[prod[1]][0] != 'String':
+                    try:
+                       prod[1] = tablaSimbolos[prod[1]][1] 
+                    except IndexError:
+                        agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
+                        return
+                    prod[0] = ('condicion', prod[1], prod[2], prod[3])
+                else:
+                   agregarError(6, 'Semántico', 'Datos incompatibles',prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1)) 
     else:
-        agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+        if regexID.match(str(prod[1])) and not regexBoolean.match(str(prod[1])):
+            agregarError(3, 'Semántico', 'Variable no declarada', prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
+        else:
+            if prod[3] in tablaSimbolos and tablaSimbolos[prod[3]][0] == 'String':
+                agregarError(6, 'Semántico', 'Datos incompatibles',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+            elif prod[3] not in tablaSimbolos:
+                if regexID.match(str(prod[3])) and not regexBoolean.match(str(prod[3])):
+                    agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+                else:
+                    prod[0] = ('condicion', prod[1], prod[2], prod[3])
+            elif tablaSimbolos[prod[3]][0] != 'String':
+                try:
+                    prod[3] = tablaSimbolos[prod[3]][1]
+                except IndexError:
+                    agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
+                    return
+                prod[0] = ('condicion', prod[1], prod[2], prod[3])
+
 #gramatica para error semantico del if
 def p_errorcondicion(prod):
     '''
