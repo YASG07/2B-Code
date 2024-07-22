@@ -1,11 +1,12 @@
 from tkinter import *
 from tkinter import filedialog
+from tkinter import scrolledtext
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox as mb
 from lexico import tokens, reservadas,analizador,tablaErrores
 from sintactico import parser, yacc,reiniciarAnalizadorSintactico
 from intermedio import map,reiniciarGI,obtener_codigo_intermedio
-
+from Esamblador        import map,reiniciarGA, obtener_codigo_ensamblador
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
@@ -190,6 +191,7 @@ def change_bg_color(self):
 lexico_window = None
 sintactico_window = None
 intermedio_window = None
+ensamblador_window = None
 tabla_window = None
 
 def cerrar_ventana(window):
@@ -284,6 +286,7 @@ def analisisCompleto(resul=None):
             map(resultado)
             mostrarAnalisisSintactico2(resultado)
             mostrarcodigoIntermedio(obtener_codigo_intermedio())
+            mostrarcodigoEnsamblador(obtener_codigo_ensamblador())
         
         except yacc.YaccError as e:
             scrollAnalisis.insert(END, "Errores Sintácticos:\n")
@@ -386,18 +389,31 @@ def codigointermedio():
     reiniciarAnalizadorSintactico()
     reiniciarGI()
     if len(cadena) > 0:
-        
         try:
             resultado = parser.parse(cadena)
             map(resultado)
             
-            mostrarcodigoIntermedio(obtener_codigo_intermedio())
+            codigo_intermedio = obtener_codigo_intermedio()
+            mostrarcodigoIntermedio(codigo_intermedio)
+            
+            # Convertir a ensamblador y mostrar
+            codigo_ensamblador = convertir_a_ensamblador(codigo_intermedio)
+            mostrarcodigoEnsamblador(codigo_ensamblador)
         except yacc.YaccError as e:
             imprimir_errores(e)
             mb.showerror("Error", str(e))
     else:
         mb.showwarning("ERROR", "Debes escribir código")
 
+
+def obtener_tripletas():
+    # Asumiendo que `codigo_intermedio` es una lista de tripletas
+    return mostrarcodigoIntermedio()  # Modifica según cómo obtienes las tripletas
+
+def mostrar_tripletas():
+    tripletas = obtener_tripletas()
+    for tripleta in tripletas:
+        print(tripleta)
 
 
 
@@ -535,6 +551,86 @@ font_menu.add_command(label="20", command=lambda: cambiar_tamaño_letra(20))
 menubar.add_cascade(label="Tamaño de la letra", menu=font_menu)
 menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON 
 #menubar.add_radiobutton(label="Codigo Intermedio", command=codigointermedio)
+#
+
+
+def mostrarcodigoEnsamblador(data):
+    global ensamblador_window
+    ensamblador_window = cerrar_ventana(ensamblador_window)
+    ensamblador_window = tk.Toplevel()
+    ensamblador_window.title("Código Ensamblador")
+
+    # Crear un Text widget con un Scrollbar
+    text_area = tk.Text(ensamblador_window, wrap='word')
+    scrollbar = tk.Scrollbar(ensamblador_window, command=text_area.yview)
+    text_area.configure(yscrollcommand=scrollbar.set)
+
+    # Configurar la posición de los widgets
+    text_area.pack(side='left', fill='both', expand=True)
+    scrollbar.pack(side='right', fill='y')
+
+    # Insertar datos en el Text widget
+    text_area.config(state="normal")  # Cambiar el estado a normal para permitir la edición
+    text_area.delete(1.0, tk.END)  # Borrar el contenido previo
+    if data is None:
+        text_area.insert(tk.END, "No se encontraron datos para mostrar.\n")
+    else:
+        text_area.insert(tk.END, "======================  CÓDIGO ENSAMBLADOR ===========================\n")
+        text_area.insert(tk.END, data + '\n')
+        text_area.insert(tk.END, "======================================================================\n")
+    text_area.config(state="disabled")  # Volver a deshabilitar la edición
+
+    # Crear un menú en la ventana de ensamblador
+    menu_bar = tk.Menu(ensamblador_window)
+    ensamblador_window.config(menu=menu_bar)
+    file_menu = tk.Menu(menu_bar, tearoff=0)
+    menu_bar.add_cascade(label="Archivo", menu=file_menu)
+    file_menu.add_command(label="Guardar", command=lambda: guardar_archivo(text_area.get(1.0, tk.END)))
+    file_menu.add_command(label="Abrir en EMU8086", command=lambda: abrir_en_emu8086())
+
+def guardar_archivo(contenido):
+    archivo_guardar = filedialog.asksaveasfilename(defaultextension=".asm",
+                                                 filetypes=[("Archivos de ensamblador", "*.asm"), ("Todos los archivos", "*.*")])
+    if archivo_guardar:
+        with open(archivo_guardar, 'w') as archivo:
+            archivo.write(contenido)
+
+def abrir_en_emu8086():
+    # Ruta al ejecutable de EMU8086
+    ruta_emu8086 = "C:\emu8086\emu8086.exe"  # Cambia esto a la ruta correcta de tu EMU8086
+
+    # Archivo ASM a abrir
+    archivo_abrir = filedialog.askopenfilename(defaultextension=".asm",
+                                              filetypes=[("Archivos de ensamblador", "*.asm"), ("Todos los archivos", "*.*")])
+    if archivo_abrir:
+        # Abre el archivo en EMU8086
+        subprocess.Popen([ruta_emu8086, archivo_abrir], shell=True)
+
+def cerrar_ventana(ventana):
+    if ventana:
+        ventana.destroy()
+    return None
+
+
+def codigoensamblador():
+    cadena = scroll_text_widget.get_text()
+    reiniciarAnalizadorSintactico()
+    reiniciarGA()
+    if len(cadena) > 0:
+        try:
+            resultado = parser.parse(cadena)
+            map(resultado)
+            
+            codigo_ensamblador = obtener_codigo_ensamblador()
+            mostrarcodigoEnsamblador(codigo_ensamblador)
+        except yacc.YaccError as e:
+            imprimir_errores(e)
+            mb.showerror("Error", str(e))
+    else:
+        mb.showwarning("ERROR", "Debes escribir código")
+
+#menubar.add_radiobutton(label="Generar ensamblador", command=lambda: print(mostrarcodigoEnsamblador()))
+#
 
 root.config(menu=menubar)
 root.mainloop()
