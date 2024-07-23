@@ -135,6 +135,8 @@ def p_auxbloque(prod):
               | si
               | funcion
               | imprimir
+              | escribir
+              | leer
     '''
     prod[0] = prod[1]
 
@@ -330,6 +332,16 @@ def p_aritmetico(prod):
                | MOD
     '''
     prod[0] = prod[1]
+def p_escribir(prod):
+    '''
+    escribir : write LPARENT CADENA RPARENT FIN_LINEA
+    '''
+    prod[0]=('write',prod[3])
+def p_leer(prod):
+    '''
+    leer : read TWPOINT ASSIGN ID FIN_LINEA
+    '''
+    prod[0]=('read',prod[4])
  
 
 #producción para

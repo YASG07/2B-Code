@@ -63,6 +63,7 @@ tokens = [
     'SBLKEY',
     'SBRKEY',
     'COMMA',
+    'TWPOINT',
     'DOT',
     'ASSIGN',
     'PLUSEQUAL',
@@ -85,6 +86,8 @@ tokens = [
     'COMENTARIOS_MULTILINEA',
     'FIN_LINEA',
     'print',
+    'read',
+    'write',
 ]
 
 #palabras reservadas
@@ -104,6 +107,9 @@ reservadas = {
     'String':'String',
     'char':'char',
     'bool':'bool',
+    'read':'read',
+    'write':'write',
+
 }
 
 #expresiones regulares para validar simbolos
@@ -121,6 +127,7 @@ t_RKEY = r'\}'
 t_SBLKEY = r'\['
 t_SBRKEY = r'\['
 t_COMMA = r','
+t_TWPOINT =r':'
 t_DOT = r'\.'
 t_ASSIGN = r'='
 t_PLUSEQUAL = r'\+\='
