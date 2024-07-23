@@ -12,6 +12,8 @@ def reiniciarGI():
     contadorLabel = 0
 
 def obtener_codigo_intermedio():
+    global codigoIntermedio
+    print(codigoIntermedio)
     return codigoIntermedio
 
 # variables de control de lectura de ASA
@@ -87,18 +89,24 @@ def map(asa):
         contadorLabel += 1
         codigoIntermedio += f'label{contadorLabel}:\n'
 
-    elif nodo == 'cicloWhile':
+    elif nodo == 'escenario':
         print(nodo)
         contadorLabel += 1
+        auxLabel = contadorLabel
         codigoIntermedio += f'label{contadorLabel}:\n'
-        contadorLabel += 1
         map(asa[1])
-        codigoIntermedio += f'goto label{contadorLabel+1}\nlabel{contadorLabel}:\n'
-        map(asa[2])
-        codigoIntermedio += f'goto label{contadorLabel-1}\n'
+        codigoIntermedio += f'goto label{auxLabel}\n'
         contadorLabel += 1
         codigoIntermedio += f'label{contadorLabel}:\n'
    
+    elif nodo == 'completar':
+        print(nodo)
+        if not asa[1]:
+            reiniciarGI()
+            return
+        condicion = asa[1]
+        codigoIntermedio += f'if {condicion[1]} {condicion[2]} {condicion[3]} goto label{contadorLabel+1}\n'
+
     elif nodo == 'Si':
         print(nodo)
         contadorLabel += 1

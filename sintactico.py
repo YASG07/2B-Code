@@ -131,7 +131,7 @@ def p_auxbloque(prod):
     auxbloque : declaracion
               | asignacion
               | ciclofor
-              | ciclowhile
+              | escenario
               | si
               | funcion
               | imprimir
@@ -463,12 +463,27 @@ def p_errorciclofor(prod):
     agregarError(8, 'Semántico', 'La cantidad de repeticiones no es un valor numérico entero.', prod[5], prod.lineno(2)+1, obtenerColumna(prod.lexer.lexdata, prod, 2))
     prod[0] = 'Error'
     
-def p_ciclowhile(prod):
+def p_escenario(prod):
     '''
-    ciclowhile : while LPARENT operacionlogica RPARENT bloque
-               | while LPARENT BOOLEAN RPARENT bloque 
+    escenario : scenario LPARENT RPARENT auxscenario
     '''
-    prod[0] = ('cicloWhile', prod[3], prod[5])
+    prod[0] = ('escenario', prod[4])
+
+def p_completar(prod):
+    '''
+    completar : clear LPARENT condicion RPARENT FIN_LINEA
+    '''
+    prod[0] = ('completar', prod[3])
+
+def p_auxscenario(prod):
+    '''
+    auxscenario : LKEY instrucciones completar RKEY
+                | LKEY completar RKEY 
+    '''
+    if len(prod) == 5:
+        prod[0] = ('bloque', prod[2], prod[3])
+    else:
+        prod[0] = prod[2]
 
 def p_si(prod):
     '''

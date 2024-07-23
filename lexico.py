@@ -39,7 +39,8 @@ def agregarError(indice, tipo, descripcion, valor, linea, columna):
 tokens = [
     'if',
     'else',
-    'while',
+    'scenario',
+    'clear',
     'for',
     'in',
     'range',
@@ -90,7 +91,8 @@ tokens = [
 reservadas = {
     'if':'if',
     'else':'else',
-    'while':'while',
+    'scenario':'scenario',
+    'clear':'clear',
     'for':'for',
     'in':'in',
     'range':'range',
