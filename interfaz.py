@@ -6,7 +6,7 @@ from tkinter import messagebox as mb
 from lexico import tokens, reservadas,analizador,tablaErrores
 from sintactico import parser, yacc,reiniciarAnalizadorSintactico
 from intermedio import map,reiniciarGI,obtener_codigo_intermedio
-from Esamblador        import map,reiniciarGA, obtener_codigo_ensamblador
+from Esamblador import map1,reiniciarGA, obtener_codigo_ensamblador
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
@@ -284,9 +284,11 @@ def analisisCompleto(resul=None):
             resultado = parser.parse(cadena)
             print(resultado)
             map(resultado)
+            map1 (resultado)
             mostrarAnalisisSintactico2(resultado)
             mostrarcodigoIntermedio(obtener_codigo_intermedio())
             mostrarcodigoEnsamblador(obtener_codigo_ensamblador())
+            
         
         except yacc.YaccError as e:
             scrollAnalisis.insert(END, "Errores Sintácticos:\n")
@@ -383,27 +385,24 @@ def mostrarcodigoIntermedio(data):
             text_area.insert(END, data + '\n')
             text_area.insert(END,"=====================================================================\n")
     text_area.config(state="disabled")  # Volver a deshabilitar la edición
+    
 
 def codigointermedio():
     cadena = scroll_text_widget.get_text()
     reiniciarAnalizadorSintactico()
     reiniciarGI()
     if len(cadena) > 0:
+        
         try:
             resultado = parser.parse(cadena)
             map(resultado)
             
-            codigo_intermedio = obtener_codigo_intermedio()
-            mostrarcodigoIntermedio(codigo_intermedio)
-            
-            # Convertir a ensamblador y mostrar
-            codigo_ensamblador = convertir_a_ensamblador(codigo_intermedio)
-            mostrarcodigoEnsamblador(codigo_ensamblador)
+            mostrarcodigoIntermedio(obtener_codigo_intermedio())
         except yacc.YaccError as e:
             imprimir_errores(e)
             mb.showerror("Error", str(e))
     else:
-        mb.showwarning("ERROR", "Debes escribir código")
+        mb.showwarning("ERROR", "Debes escribir código") 
 
 
 def obtener_tripletas():
@@ -532,7 +531,8 @@ menubar.add_cascade(label="Archivo", menu=file)
 analisis = Menu(menubar, tearoff=0)   
 analisis.add_command(label="Lexico",command=analisisLexico)  
 analisis.add_command(label="Sintactico", command=analisisSintactico) 
-#analisis.add_command(label="Semantico", command=analisisSemantico) 
+analisis.add_command(label="Esamblador", command=obtener_codigo_ensamblador)
+#mostrarcodigoEnsamblador(obtener_codigo_ensamblador())
 menubar.add_cascade(label="Analizar", menu=analisis)
 
 
@@ -575,9 +575,9 @@ def mostrarcodigoEnsamblador(data):
     if data is None:
         text_area.insert(tk.END, "No se encontraron datos para mostrar.\n")
     else:
-        text_area.insert(tk.END, "======================  CÓDIGO ENSAMBLADOR ===========================\n")
+        text_area.insert(tk.END, ";======================  CÓDIGO ENSAMBLADOR ===========================\n")
         text_area.insert(tk.END, data + '\n')
-        text_area.insert(tk.END, "======================================================================\n")
+        text_area.insert(tk.END, ";======================================================================\n")
     text_area.config(state="disabled")  # Volver a deshabilitar la edición
 
     # Crear un menú en la ventana de ensamblador
@@ -619,7 +619,7 @@ def codigoensamblador():
     if len(cadena) > 0:
         try:
             resultado = parser.parse(cadena)
-            map(resultado)
+            map1(resultado)
             
             codigo_ensamblador = obtener_codigo_ensamblador()
             mostrarcodigoEnsamblador(codigo_ensamblador)
@@ -629,8 +629,6 @@ def codigoensamblador():
     else:
         mb.showwarning("ERROR", "Debes escribir código")
 
-#menubar.add_radiobutton(label="Generar ensamblador", command=lambda: print(mostrarcodigoEnsamblador()))
-#
 
 root.config(menu=menubar)
 root.mainloop()

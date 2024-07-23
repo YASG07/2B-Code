@@ -29,7 +29,7 @@ dataSection = ''
 codeSection = ''
 
 # recorrido del árbol de sintaxis abstracta
-def map(asa):
+def map1(asa):
     global dataSection
     global codeSection
     global contadorLabel
@@ -54,7 +54,7 @@ def map(asa):
         fase = 1
         codigoEnsamblador = ''
         contadorLabel = 0
-        map(asa[1])
+        map1(asa[1])
         codigoEnsamblador = (
             ".model small\n"
             ".stack\n"
@@ -67,15 +67,15 @@ def map(asa):
     # evalúa si el nombre del nodo es clase
     elif nodo == 'clase':
         print(nodo)
-        map(asa[2])
+        map1(asa[2])
 
     elif nodo == 'bloque':
         print(nodo)
         for instruccion in asa[1]:
-            map(instruccion)
+            map1(instruccion)
         fase += 1
         if fase < longitudASA:
-            map(ASA[fase])
+            map1(ASA[fase])
 
     elif nodo == 'declaracion':
         print(nodo)
@@ -112,26 +112,26 @@ def map(asa):
         codeSection += f'mov cx, {asa[1]}\nlabel{contadorLabel}:\n'
         contadorLabel += 1
         codeSection += f'cmp cx, 0\njle label{contadorLabel}\n'
-        map(asa[2])
+        map1(asa[2])
         codeSection += f'dec cx\njmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
 
     elif nodo == 'cicloWhile':
         print(nodo)
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
-        map(asa[1])
+        map1(asa[1])
         contadorLabel += 1
         codeSection += f'jne label{contadorLabel+1}\nlabel{contadorLabel}:\n'
-        map(asa[2])
+        map1(asa[2])
         codeSection += f'jmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
         contadorLabel += 1
 
     elif nodo == 'Si':
         print(nodo)
         contadorLabel += 1
-        map(asa[1])
+        map1(asa[1])
         codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
-        map(asa[2])
+        map1(asa[2])
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
 
@@ -152,21 +152,21 @@ def map(asa):
         elif condicion[2] == '!=':
             codeSection += f'jne label{contadorLabel}\n'
         codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
-        map(asa[1][2])
+        map1(asa[1][2])
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
-        map(asa[2])
+        map1(asa[2])
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
 
     elif nodo == 'funcion':
         print(nodo)
-        map(asa[2])
+        map1(asa[2])
 
     elif nodo == 'funcionParametrizada':
         print(nodo)
         codeSection += f'call {asa[1]} ({asa[2][1]},{asa[2][3]})\n'
-        map(asa[3])
+        map1(asa[3])
 
     elif nodo == 'Error':
         reiniciarGA()
