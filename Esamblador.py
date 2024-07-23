@@ -85,9 +85,10 @@ def map1(asa):
 
     elif nodo == 'asignacion':
         print(nodo)
-        variable = asa[1]
-        valor = asa[2]
-        codeSection += f"mov {variable}, {valor}\n"
+        codeSection += f"mov {asa[1]}, {asa[2]}\n"
+    
+    elif nodo == 'escribir':
+        print(nodo)
 
     elif nodo == 'condicion':
         print(nodo)

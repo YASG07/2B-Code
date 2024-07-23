@@ -25,6 +25,7 @@ longitudASA = 0
 fase = 1
 ASA = []
 codigoIntermedio = ''
+contadort  = 0
 
 # recorrido del árbol de sintaxis abstracta
 def map(asa):
@@ -79,12 +80,12 @@ def map(asa):
         
     elif nodo == 'escribir':
         print(nodo)
-        map(asa[0])
-        codigoIntermedio += f'T1 = {asa[1]}\nimp_write T1\n'
+        contadort+=1
+        codigoIntermedio += f'T{contadort} = {asa[2]}\nimp_write T{contadort}\n'
     elif nodo == 'leer':
         print(nodo)
-        map(asa[0])
-        codigoIntermedio += f'imp_read = T{contadort}\n{asa[1]} = T{contadort-1}\n'
+        contadort+=1
+        codigoIntermedio += f'imp_read = T{contadort}\n{asa[2]} = T{contadort}\n'
 
     elif nodo == 'condicion':
         print(nodo)
@@ -186,13 +187,11 @@ Class Mundo1 {
     }
     if (enemigos>fuerza){
         int ab$
-        write("Ingresa la fuerza")$
+        write(Mensaje)$
         read:=fuerza2$
          
     }else{
-	    func sumar (int a, int b){
-
-        }
+        write("Perdiste")$
     }
    
 int hola$

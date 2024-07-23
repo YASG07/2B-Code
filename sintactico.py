@@ -228,7 +228,18 @@ def p_errorasignacion(prod):
     #Cesar
     agregarError(5, 'Sintactico', 'Falta el $ en la asignacion', prod[1], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
     prod[0] = 'Error'
-
+def p_escribir(prod):
+    '''
+    escribir : write LPARENT CADENA RPARENT FIN_LINEA
+             | write LPARENT ID RPARENT FIN_LINEA
+    '''
+    prod[0]=('escribir',prod[1],prod[3])
+def p_leer(prod):
+    '''
+    leer : read TWPOINT ASSIGN ID FIN_LINEA
+    '''
+    prod[0]=('leer',prod[1],prod[4])
+ 
 #auxiliar para declaración (tipos de dato aceptados)
 def p_tipodato(prod):
     '''
@@ -332,17 +343,7 @@ def p_aritmetico(prod):
                | MOD
     '''
     prod[0] = prod[1]
-def p_escribir(prod):
-    '''
-    escribir : write LPARENT CADENA RPARENT FIN_LINEA
-    '''
-    prod[0]=('write',prod[3])
-def p_leer(prod):
-    '''
-    leer : read TWPOINT ASSIGN ID FIN_LINEA
-    '''
-    prod[0]=('read',prod[4])
- 
+
 
 #producción para
 def p_operacionlogica(prod):
