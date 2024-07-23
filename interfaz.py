@@ -54,7 +54,7 @@ class ScrollTextWithLineNumbers(Frame):
         self.text_widget.tag_configure("TOKENS", foreground="lime green")
         self.text_widget.tag_configure("RESERVADAS", foreground="red")
         self.text_widget.tag_configure("SYMBOL", foreground="orange")
-        self.text_widget.tag_configure("COMMENT", foreground="gray52")
+        self.text_widget.tag_configure("COMENTARIOS", foreground="gray52")
 
     def on_key_release(self, event):
             self.highlight_code()
@@ -107,7 +107,7 @@ class ScrollTextWithLineNumbers(Frame):
             end_index = self.text_widget.search('\n', start_index, tk.END)
             if not end_index:
                 end_index = tk.END
-            self.text_widget.tag_add("COMMENT", start_index, end_index)
+            self.text_widget.tag_add("COMENTARIOS", start_index, end_index)
             start_index = end_index
 
         # Resaltar comentarios de múltiples líneas
@@ -280,6 +280,7 @@ def analisisCompleto(resul=None):
         # Análisis sintáctico
         reiniciarAnalizadorSintactico()
         reiniciarGI()
+        reiniciarGA()
         try:
             resultado = parser.parse(cadena)
             print(resultado)
