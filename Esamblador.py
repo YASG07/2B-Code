@@ -102,6 +102,7 @@ def map1(asa):
             f".data\n{dataSection}\n"
             f".code\nmov ax, @data\nmov ds, ax\n"
             f"{codeSection}\n"
+            f"mov ax,4c00h\nint 21h\n"
             "end\n"
         )
 
@@ -202,21 +203,18 @@ def map1(asa):
         
     elif nodo == 'escribir':
         print(nodo)
-        variable = asa[2]
         # Generar el código de impresión para la cadena almacenada en la sección de datos
         codeSection += 'mov ah, 09h\n'
-        codeSection += f'lea dx, {variable}\n'
+        codeSection += f'lea dx, {asa[2]}\n'
         codeSection += 'int 21h\n'
 
     elif nodo == 'leer':
         print(nodo)
-        variable = asa[2]
         # Generar el código de impresión para la cadena almacenada en la sección de datos
-        codeSection += 'mov ah, 0\n'
-        codeSection += 'int 16h\n'
-        codeSection += f'mov [{variable}],ax\n'
-        codeSection += 'mov ah, 0Eh\n'
-        codeSection += 'int 10h\n'
+        codeSection += 'mov ah, 1\n'
+        codeSection += 'int 21h\n' 
+        codeSection += f'mov {asa[2]},ax\n' #Almacena la variable
+        codeSection += f'SUB {asa[2]},30H\n' #Ajuste Ascii
 
     elif nodo == 'funcion':
         print(nodo)

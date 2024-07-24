@@ -174,32 +174,3 @@ def map(asa):
         reiniciarGI()
         return
     
-src = '''
-Class Mundo1 {
-    float enemigos = (5/2)*3$
-    int habilidad = 3$
-	int fuerza = 2$
-    int fuerza2$
-    String Mensaje = "Perdiste"$
-    
-    for in range 4{
- 	    int af$	 
-    }
-    if (enemigos>fuerza){
-        int ab$
-        write(Mensaje)$
-        read:=fuerza2$
-         
-    }else{
-        write("Perdiste")$
-    }
-   
-int hola$
-    
-}
-'''
-resultado = parser.parse(src)
-print(resultado)
-map(resultado)
-#print(ASA)
-print('Codigo Intermedio\n'+codigoIntermedio)

@@ -642,6 +642,16 @@ def p_errordeclaracion5(prod):
     '''
     agregarError(9.1, 'Sintactico', 'Símbolo "=" no detectado', prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
 
+def p_errorescribir(prod):
+    '''
+    escribir : write LPARENT error RPARENT FIN_LINEA
+    '''
+    agregarError(10,'Sintactico','Syntax Error',prod[3], prod.lineno(3)+1, obtenerColumna(prod.lexer.lexdata, prod, 3))
+def p_errorleer(prod):
+    '''
+    leer : read TWPOINT ASSIGN error FIN_LINEA
+    '''
+    agregarError(11,'Sintactico','Syntax Error',prod[4], prod.lineno(4)+1, obtenerColumna(prod.lexer.lexdata, prod, 4))
 
 #error programa no válido
 def p_error(prod):
