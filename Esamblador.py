@@ -1,3 +1,5 @@
+from sintactico import parser
+
 # reinicia la generación de código ensamblador
 def reiniciarGA():
     global ASA
@@ -28,7 +30,46 @@ codigoEnsamblador = ''
 dataSection = ''
 codeSection = ''
 
-# recorrido del árbol de sintaxis abstracta
+def redondear(valor):
+    """ Redondea un número flotante al entero más cercano """
+    if isinstance(valor, float):
+        if valor - int(valor) >= 0.5:
+            return int(valor) + 1
+        else:
+            return int(valor)
+    return valor
+
+def manejar_variable(variable, valor):
+    """ Maneja la asignación de variables y redondea flotantes si es necesario """
+    if isinstance(valor, float):
+        valor = redondear(valor)
+        return f'{variable} DW {valor}\n'
+    elif isinstance(valor, int):
+        return f'{variable} DW {valor}\n'
+    elif isinstance(valor, str):
+        # Agregar $ al final de la cadena
+        valor_modificado = valor.replace('"', '').replace("'", "\\'")  # Escapa comillas simples
+        return f'{variable} DB 7,10,13,\'{valor_modificado} $\'\n'
+    return ''
+
+def agregar_condicion(condicion):
+    """ Agrega las instrucciones de comparación para las condiciones """
+    global codeSection  # Declara codeSection como global
+    if condicion[1] in ['AL', 'BL', 'CL', 'DL']:
+        codeSection += f'cmp {condicion[1]}, {redondear(condicion[3])}\n'
+    else:
+        codeSection += f'mov al, {redondear(condicion[1])}\n'
+        codeSection += f'cmp al, {redondear(condicion[3])}\n'
+    if condicion[2] == '>':
+        codeSection += f'jg label{contadorLabel}\n'
+    elif condicion[2] == '==':
+        codeSection += f'je label{contadorLabel}\n'
+    elif condicion[2] == '<':
+        codeSection += f'jl label{contadorLabel}\n'
+    elif condicion[2] == '!=':
+        codeSection += f'jne label{contadorLabel}\n'
+    
+
 def map1(asa):
     global dataSection
     global codeSection
@@ -81,36 +122,27 @@ def map1(asa):
         print(nodo)
         variable = asa[2]
         valor = asa[3] if len(asa) > 3 and asa[3] is not None else 0
-        dataSection += f'{variable} DW {valor}\n'
+        dataSection += manejar_variable(variable, valor)
 
     elif nodo == 'asignacion':
         print(nodo)
-        codeSection += f"mov {asa[1]}, {asa[2]}\n"
-    
-    elif nodo == 'escribir':
-        print(nodo)
+        variable = asa[1]
+        valor = asa[2]
+        if variable in ['AL', 'BL', 'CL', 'DL']:
+            codeSection += f"mov {variable}, {valor}\n"
+        else:
+            codeSection += f"mov ax, {valor}\n"
+            codeSection += f"mov {variable}, al\n"
 
     elif nodo == 'condicion':
         print(nodo)
-        codeSection += f'cmp {asa[1]}, {asa[3]}\n'
-        if asa[2] == '==':
-            codeSection += f'je label{contadorLabel}\n'
-        elif asa[2] == '!=':
-            codeSection += f'jne label{contadorLabel}\n'
-        elif asa[2] == '>':
-            codeSection += f'jg label{contadorLabel}\n'
-        elif asa[2] == '<':
-            codeSection += f'jl label{contadorLabel}\n'
-        elif asa[2] == '>=':
-            codeSection += f'jge label{contadorLabel}\n'
-        elif asa[2] == '<=':
-            codeSection += f'jle label{contadorLabel}\n'
-        contadorLabel += 1
+        agregar_condicion(asa)
 
     elif nodo == 'cicloFor':
         print(nodo)
+        variable = asa[1]
         contadorLabel += 1
-        codeSection += f'mov cx, {asa[1]}\nlabel{contadorLabel}:\n'
+        codeSection += f'mov cx, {variable}\nlabel{contadorLabel}:\n'
         contadorLabel += 1
         codeSection += f'cmp cx, 0\njle label{contadorLabel}\n'
         map1(asa[2])
@@ -118,56 +150,77 @@ def map1(asa):
 
     elif nodo == 'cicloWhile':
         print(nodo)
+        variable = asa[1]
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
-        map1(asa[1])
+        map1(asa[2])  # Verifica la condición mientras el ciclo está en ejecución
         contadorLabel += 1
         codeSection += f'jne label{contadorLabel+1}\nlabel{contadorLabel}:\n'
-        map1(asa[2])
+        map1(asa[3])
         codeSection += f'jmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
         contadorLabel += 1
 
     elif nodo == 'Si':
         print(nodo)
+        condicion = asa[1]
         contadorLabel += 1
-        map1(asa[1])
-        codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
+    # Agrega las instrucciones de comparación para la condición
+        agregar_condicion(condicion)
+    # Etiqueta donde se ejecutará el bloque si la condición es verdadera
+        codeSection += f'label{contadorLabel}:\n'
+    # Ejecuta el bloque de instrucciones del Si
         map1(asa[2])
+    # Agrega una etiqueta final para el bloque Si
+        contadorLabel += 1
+        codeSection += f'label{contadorLabel}:\n'
+    # Salta al final después del bloque Si
+        codeSection += f'jmp label{contadorLabel+1}\n'
+    # Etiqueta para el final de la sección Si
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
 
     elif nodo == 'SiNo':
         print(nodo)
-        contadorLabel += 1
-        if not asa[1][1]:
-            reiniciarGA()
-            return
         condicion = asa[1][1]
-        codeSection += f'cmp {condicion[1]}, {condicion[3]}\n'
-        if condicion[2] == '>':
-            codeSection += f'jg label{contadorLabel}\n'
-        elif condicion[2] == '==':
-            codeSection += f'je label{contadorLabel}\n'
-        elif condicion[2] == '<':
-            codeSection += f'jl label{contadorLabel}\n'
-        elif condicion[2] == '!=':
-            codeSection += f'jne label{contadorLabel}\n'
-        codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
+        contadorLabel += 1
+    # Agrega las instrucciones de comparación para la condición
+        agregar_condicion(condicion)
+    # Etiqueta donde se ejecutará el bloque si la condición es verdadera
+        codeSection += f'label{contadorLabel}:\n'
+    # Ejecuta el bloque de instrucciones del Si
         map1(asa[1][2])
+    # Salta al bloque Sino
         contadorLabel += 1
+        codeSection += f'jmp label{contadorLabel+1}\n'
+    # Etiqueta para el final del bloque Si
         codeSection += f'label{contadorLabel}:\n'
+    # Ejecuta el bloque de instrucciones del Sino
         map1(asa[2])
+    # Agrega una etiqueta final para el bloque Sino
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
+        
+    elif nodo == 'escribir':
+        print(nodo)
+        variable = asa[2]
+        # Generar el código de impresión para la cadena almacenada en la sección de datos
+        codeSection += 'mov ah, 09h\n'
+        codeSection += f'lea dx, {variable}\n'
+        codeSection += 'int 21h\n'
+
+    elif nodo == 'leer':
+        print(nodo)
+        variable = asa[2]
+        # Generar el código de impresión para la cadena almacenada en la sección de datos
+        codeSection += 'mov ah, 0\n'
+        codeSection += 'int 16h\n'
+        codeSection += f'mov [{variable}],ax\n'
+        codeSection += 'mov ah, 0Eh\n'
+        codeSection += 'int 10h\n'
 
     elif nodo == 'funcion':
         print(nodo)
         map1(asa[2])
-
-    elif nodo == 'funcionParametrizada':
-        print(nodo)
-        codeSection += f'call {asa[1]} ({asa[2][1]},{asa[2][3]})\n'
-        map1(asa[3])
 
     elif nodo == 'Error':
         reiniciarGA()
