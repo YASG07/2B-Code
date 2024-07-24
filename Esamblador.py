@@ -1,6 +1,6 @@
 from sintactico import parser
+import math
 
-# reinicia la generación de código ensamblador
 def reiniciarGA():
     global ASA
     global longitudASA
@@ -21,7 +21,6 @@ def obtener_codigo_ensamblador():
     global codigoEnsamblador
     return codigoEnsamblador
 
-# variables de control de lectura de ASA
 contadorLabel = 0    
 longitudASA = 0
 fase = 1
@@ -47,19 +46,22 @@ def manejar_variable(variable, valor):
     elif isinstance(valor, int):
         return f'{variable} DW {valor}\n'
     elif isinstance(valor, str):
-        # Agregar $ al final de la cadena
         valor_modificado = valor.replace('"', '').replace("'", "\\'")  # Escapa comillas simples
         return f'{variable} DB 7,10,13,\'{valor_modificado} $\'\n'
     return ''
 
 def agregar_condicion(condicion):
     """ Agrega las instrucciones de comparación para las condiciones """
-    global codeSection  # Declara codeSection como global
+    global codeSection
+    valor1 = redondear(condicion[1])
+    valor3 = redondear(condicion[3])
+    
     if condicion[1] in ['AL', 'BL', 'CL', 'DL']:
-        codeSection += f'cmp {condicion[1]}, {redondear(condicion[3])}\n'
+        codeSection += f'cmp {condicion[1]}, {valor3}\n'
     else:
-        codeSection += f'mov al, {redondear(condicion[1])}\n'
-        codeSection += f'cmp al, {redondear(condicion[3])}\n'
+        codeSection += f'mov al, {valor1}\n'
+        codeSection += f'cmp al, {valor3}\n'
+    
     if condicion[2] == '>':
         codeSection += f'jg label{contadorLabel}\n'
     elif condicion[2] == '==':
@@ -68,7 +70,6 @@ def agregar_condicion(condicion):
         codeSection += f'jl label{contadorLabel}\n'
     elif condicion[2] == '!=':
         codeSection += f'jne label{contadorLabel}\n'
-    
 
 def map1(asa):
     global dataSection
@@ -79,15 +80,12 @@ def map1(asa):
     global fase
     global codigoEnsamblador
     
-    # detiene el recorrido al encontrar un error o al terminar el ASA
     if not asa:
         reiniciarGA()
         return
     
-    # recupera el nombre del nodo
     nodo = asa[0]
 
-    # evalúa si el nombre del nodo es programa
     if nodo == 'programa':
         print(nodo)
         ASA = asa
@@ -106,7 +104,6 @@ def map1(asa):
             "end\n"
         )
 
-    # evalúa si el nombre del nodo es clase
     elif nodo == 'clase':
         print(nodo)
         map1(asa[2])
@@ -139,6 +136,52 @@ def map1(asa):
         print(nodo)
         agregar_condicion(asa)
 
+    elif nodo == 'Si':
+        print(nodo)
+        contadorLabel += 1
+        map1(asa[1])
+        codeSection += f'jmp label{contadorLabel+1}\n'
+        codeSection += f'label{contadorLabel}:\n'
+        map1(asa[2])
+        contadorLabel += 1
+        codeSection += f'label{contadorLabel}:\n'
+
+    elif nodo == 'SiNo':
+        print(nodo)
+        contadorLabel += 1
+        if not asa[1][1]:
+            reiniciarGA()
+            return
+        condicion = asa[1][1]
+        valor1 = redondear(condicion[1])
+        valor3 = redondear(condicion[3])
+        codeSection += f'mov ax, {valor1}\n'
+        
+        if condicion[2] == '>':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'jg label{contadorLabel}\n'
+            codeSection += f'jle label{contadorLabel+1}\n'
+        elif condicion[2] == '==':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'je label{contadorLabel}\n'
+            codeSection += f'jne label{contadorLabel+1}\n'
+        elif condicion[2] == '<':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'jl label{contadorLabel}\n'
+            codeSection += f'jge label{contadorLabel+1}\n'
+        elif condicion[2] == '!=':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'jne label{contadorLabel}\n'
+            codeSection += f'je label{contadorLabel+1}\n'
+        
+        codeSection += f'jmp label{contadorLabel+2}\nlabel{contadorLabel}:\n'
+        map1(asa[1][2])
+        contadorLabel += 1
+        codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
+        map1(asa[2])
+        contadorLabel += 1
+        codeSection += f'label{contadorLabel}:\n'
+
     elif nodo == 'cicloFor':
         print(nodo)
         variable = asa[1]
@@ -154,67 +197,25 @@ def map1(asa):
         variable = asa[1]
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
-        map1(asa[2])  # Verifica la condición mientras el ciclo está en ejecución
+        map1(asa[2])
         contadorLabel += 1
         codeSection += f'jne label{contadorLabel+1}\nlabel{contadorLabel}:\n'
         map1(asa[3])
         codeSection += f'jmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
         contadorLabel += 1
 
-    elif nodo == 'Si':
-        print(nodo)
-        condicion = asa[1]
-        contadorLabel += 1
-    # Agrega las instrucciones de comparación para la condición
-        agregar_condicion(condicion)
-    # Etiqueta donde se ejecutará el bloque si la condición es verdadera
-        codeSection += f'label{contadorLabel}:\n'
-    # Ejecuta el bloque de instrucciones del Si
-        map1(asa[2])
-    # Agrega una etiqueta final para el bloque Si
-        contadorLabel += 1
-        codeSection += f'label{contadorLabel}:\n'
-    # Salta al final después del bloque Si
-        codeSection += f'jmp label{contadorLabel+1}\n'
-    # Etiqueta para el final de la sección Si
-        contadorLabel += 1
-        codeSection += f'label{contadorLabel}:\n'
-
-    elif nodo == 'SiNo':
-        print(nodo)
-        condicion = asa[1][1]
-        contadorLabel += 1
-    # Agrega las instrucciones de comparación para la condición
-        agregar_condicion(condicion)
-    # Etiqueta donde se ejecutará el bloque si la condición es verdadera
-        codeSection += f'label{contadorLabel}:\n'
-    # Ejecuta el bloque de instrucciones del Si
-        map1(asa[1][2])
-    # Salta al bloque Sino
-        contadorLabel += 1
-        codeSection += f'jmp label{contadorLabel+1}\n'
-    # Etiqueta para el final del bloque Si
-        codeSection += f'label{contadorLabel}:\n'
-    # Ejecuta el bloque de instrucciones del Sino
-        map1(asa[2])
-    # Agrega una etiqueta final para el bloque Sino
-        contadorLabel += 1
-        codeSection += f'label{contadorLabel}:\n'
-        
     elif nodo == 'escribir':
         print(nodo)
-        # Generar el código de impresión para la cadena almacenada en la sección de datos
         codeSection += 'mov ah, 09h\n'
         codeSection += f'lea dx, {asa[2]}\n'
         codeSection += 'int 21h\n'
 
     elif nodo == 'leer':
         print(nodo)
-        # Generar el código de impresión para la cadena almacenada en la sección de datos
         codeSection += 'mov ah, 1\n'
         codeSection += 'int 21h\n' 
-        codeSection += f'mov {asa[2]},ax\n' #Almacena la variable
-        codeSection += f'SUB {asa[2]},30H\n' #Ajuste Ascii
+        codeSection += f'mov {asa[2]},ax\n'
+        codeSection += f'SUB {asa[2]},30H\n'
 
     elif nodo == 'funcion':
         print(nodo)
