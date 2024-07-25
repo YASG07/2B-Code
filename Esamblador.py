@@ -164,7 +164,7 @@ def map1(asa):
         elif condicion[2] == '==':
             codeSection += f'cmp al, {valor3}\n'
             codeSection += f'je label{contadorLabel}\n'
-            codeSection += f'jne label{contadorLabel+2}\n'
+            codeSection += f'jne label{contadorLabel+1}\n'
         elif condicion[2] == '<':
             codeSection += f'cmp al, {valor3}\n'
             codeSection += f'jl label{contadorLabel}\n'
