@@ -11,6 +11,9 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
 import re
+import subprocess
+import os
+import tempfile
 
 # Estructura Visual del compilador y funciones basicas
 
@@ -554,7 +557,6 @@ menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON
 #menubar.add_radiobutton(label="Codigo Intermedio", command=codigointermedio)
 #
 
-
 def mostrarcodigoEnsamblador(data):
     global ensamblador_window
     ensamblador_window = cerrar_ventana(ensamblador_window)
@@ -587,25 +589,37 @@ def mostrarcodigoEnsamblador(data):
     file_menu = tk.Menu(menu_bar, tearoff=0)
     menu_bar.add_cascade(label="Archivo", menu=file_menu)
     file_menu.add_command(label="Guardar", command=lambda: guardar_archivo(text_area.get(1.0, tk.END)))
-    file_menu.add_command(label="Abrir en EMU8086", command=lambda: abrir_en_emu8086())
+    file_menu.add_command(label="Abrir en EMU8086", command=lambda: abrir_en_emu8086(data))
 
 def guardar_archivo(contenido):
+    # Quitar las líneas de encabezado y pie de página
+    lineas = contenido.split('\n')
+    if lineas[0].startswith(";======================  CÓDIGO ENSAMBLADOR") and lineas[-2].startswith(";======================================================================"):
+        lineas = lineas[1:-2]
+    contenido_sin_encabezado = '\n'.join(lineas)
+    
     archivo_guardar = filedialog.asksaveasfilename(defaultextension=".asm",
                                                  filetypes=[("Archivos de ensamblador", "*.asm"), ("Todos los archivos", "*.*")])
     if archivo_guardar:
         with open(archivo_guardar, 'w') as archivo:
-            archivo.write(contenido)
+            archivo.write(contenido_sin_encabezado)
 
-def abrir_en_emu8086():
+def abrir_en_emu8086(data):
     # Ruta al ejecutable de EMU8086
-    ruta_emu8086 = "C:\emu8086\emu8086.exe"  # Cambia esto a la ruta correcta de tu EMU8086
+    ruta_emu8086 = "C:\\emu8086\\emu8086.exe"
 
-    # Archivo ASM a abrir
-    archivo_abrir = filedialog.askopenfilename(defaultextension=".asm",
-                                              filetypes=[("Archivos de ensamblador", "*.asm"), ("Todos los archivos", "*.*")])
-    if archivo_abrir:
+    # Crear un archivo temporal para el código ensamblador en el directorio temporal del sistema
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".asm") as archivo_temporal:
+        archivo_temporal.write(data.encode())
+        archivo_temporal_path = archivo_temporal.name
+
+    # Asegurarnos de que el archivo temporal se haya guardado correctamente
+    if os.path.exists(archivo_temporal_path):
+        print(f"Archivo temporal creado en: {archivo_temporal_path}")
         # Abre el archivo en EMU8086
-        subprocess.Popen([ruta_emu8086, archivo_abrir], shell=True)
+        subprocess.Popen([ruta_emu8086, archivo_temporal_path], shell=True)
+    else:
+        print("Error al crear el archivo temporal.")
 
 def cerrar_ventana(ventana):
     if ventana:
