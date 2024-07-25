@@ -1,0 +1,39 @@
+Class Mundo1 {
+    float enemigos = (5/2)*3$
+    int habilidad = 10$
+    int entrada=1$
+    int ent=1$
+
+    String ini = "Quieres entrar a jugar pon 1 si deseas entrar"$
+    String out2 ="Entendido Tenga buen dia"$
+
+    String Mensaje = "Perdiste 10pts de vida"$
+    String Mensaje1 = "Si el vaior que ingresas es menor perdistes"$
+    String Mensaje3="Te salavastes"$
+    String fin = "Fin del juego"$
+	  
+       	write(ini)$
+	read:=entrada$
+
+if(entrada==ent){
+	int fuerza2$
+	write(Mensaje1)$
+	read:=fuerza2$
+	
+        if (fuerza2>enemigos){
+		write(Mensaje3)$
+
+    
+	}else{
+		write(mensaje)$
+	}
+}else{
+		write(out2)$
+
+		
+}
+write(fin)$
+	
+
+
+}

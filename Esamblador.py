@@ -42,9 +42,9 @@ def manejar_variable(variable, valor):
     """ Maneja la asignación de variables y redondea flotantes si es necesario """
     if isinstance(valor, float):
         valor = redondear(valor)
-        return f'{variable} DW {valor}\n'
+        return f'{variable} DB {valor}\n'
     elif isinstance(valor, int):
-        return f'{variable} DW {valor}\n'
+        return f'{variable} DB {valor}\n'
     elif isinstance(valor, str):
         valor_modificado = valor.replace('"', '').replace("'", "\\'")  # Escapa comillas simples
         return f'{variable} DB 7,10,13,\'{valor_modificado} $\'\n'
@@ -155,22 +155,22 @@ def map1(asa):
         condicion = asa[1][1]
         valor1 = redondear(condicion[1])
         valor3 = redondear(condicion[3])
-        codeSection += f'mov ax, {valor1}\n'
+        codeSection += f'mov al, {valor1}\n'
         
         if condicion[2] == '>':
-            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'cmp al, {valor3}\n'
             codeSection += f'jg label{contadorLabel}\n'
             codeSection += f'jle label{contadorLabel+1}\n'
         elif condicion[2] == '==':
-            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'cmp al, {valor3}\n'
             codeSection += f'je label{contadorLabel}\n'
-            codeSection += f'jne label{contadorLabel+1}\n'
+            codeSection += f'jne label{contadorLabel+2}\n'
         elif condicion[2] == '<':
-            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'cmp al, {valor3}\n'
             codeSection += f'jl label{contadorLabel}\n'
             codeSection += f'jge label{contadorLabel+1}\n'
         elif condicion[2] == '!=':
-            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'cmp al, {valor3}\n'
             codeSection += f'jne label{contadorLabel}\n'
             codeSection += f'je label{contadorLabel+1}\n'
         
@@ -192,7 +192,7 @@ def map1(asa):
         map1(asa[2])
         codeSection += f'dec cx\njmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
 
-    elif nodo == 'cicloWhile':
+    elif nodo == 'escenario':
         print(nodo)
         variable = asa[1]
         contadorLabel += 1
@@ -214,7 +214,7 @@ def map1(asa):
         print(nodo)
         codeSection += 'mov ah, 1\n'
         codeSection += 'int 21h\n' 
-        codeSection += f'mov {asa[2]},ax\n'
+        codeSection += f'mov {asa[2]},al\n'
         codeSection += f'SUB {asa[2]},30H\n'
 
     elif nodo == 'funcion':

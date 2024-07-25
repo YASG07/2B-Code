@@ -1,20 +1,24 @@
 Class Mundo1 {
     float enemigos = (5/2)*3$
     int habilidad = 10$
-    int fuerza = 15$
     int fuerza2$
     String Mensaje = "Perdiste 10pts de vida"$
-    String Mensaje1 = "ingresa un dato"$
-
+    String Mensaje1 = "Si el vaior que ingresas es menor perdistes"$
+    String Mensaje3="Te salavastes"$
+    String fin = "Fin del juego"$
 	  write(Mensaje1)$
        read:=fuerza2$
 
-    if (enemigos>fuerza){
+    if (fuerza2>enemigos){
         int ab$
-	write(Mensaje)$
+	write(Mensaje3)$
 
     
+}else{
+		write(mensaje)$
 }
-int hola$
+	write(fin)$
+
 
 }
+
