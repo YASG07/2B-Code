@@ -1,0 +1,22 @@
+Class Mundo1 {
+    float enemigos = (5/2)*3$
+    int habilidad = 10$
+    int fuerza = 15$
+    String Mensaje = "verdadero"$
+    String Mensaje1 = "falso"$
+
+
+
+    if (enemigos>fuerza){
+       write(Mensaje)$
+
+
+    }else{
+        
+       write(Mensaje1)$
+   
+    }
+
+
+
+}
