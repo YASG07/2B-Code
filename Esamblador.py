@@ -192,17 +192,46 @@ def map1(asa):
         map1(asa[2])
         codeSection += f'dec cx\njmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
 
+    
     elif nodo == 'escenario':
         print(nodo)
-        variable = asa[1]
+        contadorLabel += 1
+        auxLabel = contadorLabel
+        codeSection += f'label{contadorLabel}:\n'
+        map1(asa[1])
+        codeSection += f'jmp label{auxLabel}\n'
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
+
+    elif nodo == 'completar':
+        print(nodo)
+        if not asa[1]:
+            reiniciarGA()
+            return
+        condicion = asa[1]
+        valor1 = redondear(condicion[1])
+        valor3 = redondear(condicion[3])
+        codeSection += f'mov ax, {valor1}\n'
+        
+        if condicion[2] == '>':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'jg label{contadorLabel+1}\n'
+        elif condicion[2] == '==':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'je label{contadorLabel+1}\n'
+        elif condicion[2] == '<':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'jl label{contadorLabel+1}\n'
+        elif condicion[2] == '!=':
+            codeSection += f'cmp ax, {valor3}\n'
+            codeSection += f'jne label{contadorLabel+1}\n'
+        
+        codeSection += f'jmp label{contadorLabel+2}\nlabel{contadorLabel}:\n'
         map1(asa[2])
         contadorLabel += 1
-        codeSection += f'jne label{contadorLabel+1}\nlabel{contadorLabel}:\n'
-        map1(asa[3])
-        codeSection += f'jmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
-        contadorLabel += 1
+        codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
+
+
 
     elif nodo == 'escribir':
         print(nodo)
