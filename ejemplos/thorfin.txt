@@ -1,0 +1,82 @@
+Class Mundo1 {
+    float enemigos = (5/2)*3$
+    int habilidad = 10$
+    int entrada=0$
+    int ent=2$
+    int ent2=3$
+    int ent3=4$
+    int ent4=5$
+
+
+    String MensajeV = ""$
+    String Mensaje1 = "Eres Thorfin hijo de Thors y despiertas como cualquier "$
+    String Mensaje2 = "otro dia en tu casa en finlandia, al lado de tu madre y tu hermana"$
+String ini1 = "Si quieres entrar preciona (3)"$
+String ini2 = "Si quieres salir preciona (2)"$
+String ini3 = "quieres enfretarte a ellos para probar tu valia (4)"$
+String ini4 = "decides volver a tu casa a escuchar la historia de Elif (5)"$
+     String Mensaje3 = "decidiste quedarte a eschuchar las historias de"$
+     String Mensaje0 = "decidiste volver a tu casa  a eschuchar las historias de"$
+     String mensaje4 = "Eilf sobre un lugar que el llamo vinland "$ 
+     String Mensaje5 = "un paraiso verde y soleado a diferencia a la nevada y fria "$
+     String Mensaje6 = "finalndia tu hogar, y decides preguntarle"$
+      String Mensaje7 = "si te llevaria con el"$
+
+    String Mensaje8 = "Decidiste salir con los demas ninos a jugara  a los Jomsvikingos,"$
+    String Mensaje9 = " donde sobresaless"$
+    String Mensaje10 = "por tu habilidad y perseverancia pero un grupo de ninos se te acercan para"$
+    String Mensaje11 = "para hacerte una emboscada"$
+    String Mensaje12 = "Decicidistes enfrentarte a ellos"$
+    String Mensaje13="Ellos te superaron en numero y perdistes"$
+    String fin="Fin del juego"$
+
+    write(Mensaje1)$
+                 write(Mensaje2)$
+               write(MensajeV)$
+               write(MensajeV)$
+                write(ini1)$
+                write(ini2)$
+               read:=entrada$
+
+if(entrada==ent){
+write(MensajeV)$
+               write(MensajeV)$
+                 write(Mensaje8)$
+                 write(Mensaje9)$
+                 write(Mensaje10)$
+                 write(Mensaje11)$
+ write(MensajeV)$
+               write(MensajeV)$
+                write(ini3)$
+                write(ini4)$
+               read:=entrada$
+}
+       
+
+if(entrada==ent2){
+write(MensajeV)$
+                 write(MensajeV)$
+                 write(Mensaje3)$
+                 write(mensaje4)$
+                 write(Mensaje5)$
+                 write(Mensaje6)$
+                 write(Mensaje7)$
+}
+ if(entrada==ent4){
+                 write(MensajeV)$
+                 write(MensajeV)$
+                 write(Mensaje0)$
+                 write(mensaje4)$
+                 write(Mensaje5)$
+                 write(Mensaje6)$
+                 write(Mensaje7)$
+
+}
+if(entrada==ent3){
+		write(MensajeV)$
+		write(Mensaje12)$
+		write(Mensaje13)$
+}
+write(fin)$              
+
+}

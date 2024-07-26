@@ -242,7 +242,11 @@ def p_leer(prod):
     leer : read TWPOINT ASSIGN ID FIN_LINEA
     '''
     if prod[4] in tablaSimbolos:
-            prod[0]=('leer',prod[1],prod[4])
+            if tablaSimbolos[prod[4]][0]=='String':
+                agregarError(12, 'Semántico', 'La varible es de tipo string', prod[4], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
+            else:
+                 prod[0]=('leer',prod[1],prod[4])
+           
     else:
         agregarError(3, 'Semántico', 'Variable no declarada', prod[3], prod.lineno(1)+1,obtenerColumna(prod.lexer.lexdata, prod, 1))
  
