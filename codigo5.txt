@@ -1,0 +1,22 @@
+
+Class mundo{
+                String msj1 = "Bob Donde esta la gotera senoara?"$
+                int respuesta = 0$
+                String msj ="Finlandia"$
+                String op1 = "1)Quizas en la pina mal dibujada"$
+                String op2 = "2)Detras de ti !mb2c@"$
+                String op3 = "3)En Vinlad Saga"$
+               scenario(){
+               write(msj1)$
+write(op1)$
+write(op2)$
+write(op3)$
+read:=respuesta$
+write(msj)$
+
+               clear(1!=0)$
+
+
+}
+
+}
