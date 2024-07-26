@@ -136,6 +136,52 @@ def map1(asa):
         print(nodo)
         agregar_condicion(asa)
 
+    elif nodo == 'Si':
+        print(nodo)
+        contadorLabel += 1
+        map1(asa[1])
+        codeSection += f'jmp label{contadorLabel+1}\n'
+        codeSection += f'label{contadorLabel}:\n'
+        map1(asa[2])
+        contadorLabel += 1
+        codeSection += f'label{contadorLabel}:\n'
+
+    elif nodo == 'SiNo':
+        print(nodo)
+        contadorLabel += 1
+        if not asa[1][1]:
+            reiniciarGA()
+            return
+        condicion = asa[1][1]
+        valor1 = redondear(condicion[1])
+        valor3 = redondear(condicion[3])
+        codeSection += f'mov al, {valor1}\n'
+        
+        if condicion[2] == '>':
+            codeSection += f'cmp al, {valor3}\n'
+            codeSection += f'jg label{contadorLabel}\n'
+            codeSection += f'jle label{contadorLabel+1}\n'
+        elif condicion[2] == '==':
+            codeSection += f'cmp al, {valor3}\n'
+            codeSection += f'je label{contadorLabel}\n'
+            codeSection += f'jne label{contadorLabel+1}\n'
+        elif condicion[2] == '<':
+            codeSection += f'cmp al, {valor3}\n'
+            codeSection += f'jl label{contadorLabel}\n'
+            codeSection += f'jge label{contadorLabel+1}\n'
+        elif condicion[2] == '!=':
+            codeSection += f'cmp al, {valor3}\n'
+            codeSection += f'jne label{contadorLabel}\n'
+            codeSection += f'je label{contadorLabel+1}\n'
+        
+        codeSection += f'jmp label{contadorLabel+2}\nlabel{contadorLabel}:\n'
+        map1(asa[1][2])
+        contadorLabel += 1
+        codeSection += f'jmp label{contadorLabel+1}\nlabel{contadorLabel}:\n'
+        map1(asa[2])
+        contadorLabel += 1
+        codeSection += f'label{contadorLabel}:\n'
+
     elif nodo == 'cicloFor':
         print(nodo)
         variable = asa[1]
@@ -148,44 +194,15 @@ def map1(asa):
 
     elif nodo == 'escenario':
         print(nodo)
-        contadorLabel += 1
-        etiqueta_inicio = contadorLabel
-        codeSection += f'label{etiqueta_inicio}:\n'
-        map1(asa[1])
-        codeSection += f'jmp label{etiqueta_inicio}\n'
-        contadorLabel += 1
-        codeSection += f'label{contadorLabel}:\n'
-
-    elif nodo == 'completar':
-        print(nodo)
-        if not asa[1]:
-            reiniciarGA()
-            return
-        condicion = asa[1]
-        operando1 = condicion[1]
-        operador = condicion[2]
-        operando2 = condicion[3]
-        codeSection += f'cmp {operando1}, {operando2}\n'
-        
-        if operador == '==':
-            codeSection += f'je label{contadorLabel+1}\n'
-        elif operador == '!=':
-            codeSection += f'jne label{contadorLabel+1}\n'
-        elif operador == '<':
-            codeSection += f'jl label{contadorLabel+1}\n'
-        elif operador == '>':
-            codeSection += f'jg label{contadorLabel+1}\n'
-        elif operador == '<=':
-            codeSection += f'jle label{contadorLabel+1}\n'
-        elif operador == '>=':
-            codeSection += f'jge label{contadorLabel+1}\n'
-        
-        codeSection += f'jmp label{contadorLabel+2}\n'
+        variable = asa[1]
         contadorLabel += 1
         codeSection += f'label{contadorLabel}:\n'
         map1(asa[2])
         contadorLabel += 1
-        codeSection += f'label{contadorLabel}:\n'
+        codeSection += f'jne label{contadorLabel+1}\nlabel{contadorLabel}:\n'
+        map1(asa[3])
+        codeSection += f'jmp label{contadorLabel-1}\nlabel{contadorLabel}:\n'
+        contadorLabel += 1
 
     elif nodo == 'escribir':
         print(nodo)

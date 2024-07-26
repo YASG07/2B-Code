@@ -1,7 +1,7 @@
 Class Mundo1 {
     float enemigos = (5/2)*3$
     int habilidad = 10$
-    int fuerza2=2$
+    int fuerza2$
     String Mensaje = "Perdiste 10pts de vida"$
     String Mensaje1 = "Si el vaior que ingresas es menor perdistes"$
     String Mensaje3="Te salavastes"$
