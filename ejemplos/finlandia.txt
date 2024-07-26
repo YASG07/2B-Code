@@ -1,0 +1,20 @@
+//aventura de ejemplo: '¿Donde esta la gotera señora?'
+Class Mundo {
+    String scene1 = 'Bob: ¿Donde podría estar trazo?'$
+    int respuesta$
+    String op1 = '1): Quizas en la piña mal dibujada'$
+    String op2 = '2): Detrás de ti !mb2c@'$
+    String op3 = '3): En vinland saga'$
+    scenario(){
+        write(scene1)$
+        read:=respuesta$
+        if(respuesta == 1){
+            write("Finlandia")$
+        }
+        else{
+            write("¿Donde esta la gotera señora")$
+        }
+        clear(respuesta == 0)$
+    }
+}
+#Fin del comunicado

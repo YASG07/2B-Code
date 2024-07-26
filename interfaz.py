@@ -195,7 +195,7 @@ lexico_window = None
 sintactico_window = None
 intermedio_window = None
 ensamblador_window = None
-tabla_window = None
+acercaDe_window = None
 
 def cerrar_ventana(window):
     if window is not None:
@@ -209,6 +209,7 @@ def mostrarAnalisisLexico2(tokens):
     # Crear una nueva ventana
     lexico_window = Toplevel()
     lexico_window.title("Análisis Léxico")
+    lexico_window.iconphoto(False, icon)
 
     # Crear un Treeview widget con columnas
     tree = ttk.Treeview(lexico_window, columns=('Tipo', 'Valor', 'Renglon', 'Columna'), show='headings')
@@ -292,7 +293,7 @@ def analisisCompleto(resul=None):
             mostrarAnalisisSintactico2(resultado)
             mostrarcodigoIntermedio(obtener_codigo_intermedio())
             mostrarcodigoEnsamblador(obtener_codigo_ensamblador())
-            
+            abrir_en_emu8086(obtener_codigo_ensamblador())
         
         except yacc.YaccError as e:
             scrollAnalisis.insert(END, "Errores Sintácticos:\n")
@@ -326,6 +327,7 @@ def mostrarAnalisisSintactico2(data):
     sintactico_window = cerrar_ventana(sintactico_window)
     sintactico_window = tk.Toplevel()
     sintactico_window.title("Análisis Sintáctico")
+    sintactico_window.iconphoto(False, icon)
     # Crear un Text widget con un Scrollbar
     text_area = Text(sintactico_window, wrap='word')
     scrollbar = Scrollbar(sintactico_window, command=text_area.yview)
@@ -370,6 +372,7 @@ def mostrarcodigoIntermedio(data):
     intermedio_window = cerrar_ventana(intermedio_window)
     intermedio_window = tk.Toplevel()
     intermedio_window.title("Codigo Intermedio")
+    intermedio_window.iconphoto(False, icon)
     # Crear un Text widget con un Scrollbar
     text_area = Text(intermedio_window, wrap='word')
     scrollbar = Scrollbar(intermedio_window, command=text_area.yview)
@@ -418,13 +421,35 @@ def mostrar_tripletas():
     for tripleta in tripletas:
         print(tripleta)
 
+def mostrarAcercaDe():
+    global acercaDe_window
+    acercaDe_window = cerrar_ventana(acercaDe_window)
+    acercaDe_window = Toplevel()
+    acercaDe_window.title('Acerca De')
+    acercaDe_window.geometry("400x300")
+    acercaDe_window.iconphoto(False, icon)
 
+    frame = tk.Frame(acercaDe_window, padx=10,pady=10)
+    frame.pack(fill='both', expand=True)
+    
+    labelIMG = tk.Label(frame, image=icon)
+    labelIMG.image = icon
+    labelIMG.pack(pady=5)
 
-
-
+    acercaDe = (
+        "2B´s Code\n"
+        "Versión 1.0\n"
+        "Desarrollado por:\n"
+        " *Frias Bogarin Rodolfo\n"
+        " *Hernández Rodríguez Cesar Uriel\n"
+        " *Sandoval García Yael Alejandro\n"
+        "2B´s Code es un compilador para crear rpg's de texto plano."
+    )
+    labelTXT = tk.Label(frame, text=acercaDe, font=("Times New Roman", 11), justify="left")
+    labelTXT.pack(pady=5)
 
 def AbrirArchivos():
-    filename = filedialog.askopenfilename(initialdir="/",
+    filename = filedialog.askopenfilename(initialdir="*",
                                           title="Select a File",
                                           filetypes=(("Text files", "*.txt"), ("Rcb files", "*.rcb"), ("all files", "*.*")))
     if filename != '':
@@ -436,7 +461,7 @@ def AbrirArchivos():
                 scroll_text_widget.set_text(content)
                 scroll_text_widget._update_line_numbers()
         else:
-            mb.showerror("Error", "El archivo seleccionado no es de tipo .txt o .ht")
+            mb.showerror("Error", "El archivo seleccionado no es de tipo .txt o .rcb")
 
 def GuardarComo():
     filename = filedialog.asksaveasfilename(initialdir="/", title="Guardar como",
@@ -503,6 +528,8 @@ root = Tk()
 root.resizable(FALSE,FALSE) # Con esto denegamos que se ajuste el tamaño de la ventana de largo y ancho
 root.geometry("924x596") #definimos las dimesiones de la ventana
 root.title("2B'S code - Compilador de videojuegos") #Titulo de la ventana
+icon = tk.PhotoImage(file='logo.png')
+root.iconphoto(False, icon)
 
 wtotal = root.winfo_screenwidth()
 htotal = root.winfo_screenheight()
@@ -554,6 +581,9 @@ font_menu.add_command(label="20", command=lambda: cambiar_tamaño_letra(20))
 
 menubar.add_cascade(label="Tamaño de la letra", menu=font_menu)
 menubar.add_radiobutton(label="Compilar", command=analisisCompleto) #BOTON 
+menu_ayuda = tk.Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Ayuda',menu=menu_ayuda)
+menu_ayuda.add_command(label='Acerca De', command=mostrarAcercaDe)
 #menubar.add_radiobutton(label="Codigo Intermedio", command=codigointermedio)
 #
 
@@ -562,6 +592,7 @@ def mostrarcodigoEnsamblador(data):
     ensamblador_window = cerrar_ventana(ensamblador_window)
     ensamblador_window = tk.Toplevel()
     ensamblador_window.title("Código Ensamblador")
+    ensamblador_window.iconphoto(False, icon)
 
     # Crear un Text widget con un Scrollbar
     text_area = tk.Text(ensamblador_window, wrap='word')
