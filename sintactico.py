@@ -371,7 +371,6 @@ def p_condicion(prod):
             tipo2 = tablaSimbolos[prod[3]]
             var1=tipo1[0]
             var2=tipo2[0]
-            #print(var1, var2)
             #Cesar
             # Verificar si los tipos de datos son compatibles
             #PARA DATOS int == String
@@ -388,8 +387,7 @@ def p_condicion(prod):
                 agregarError(6, 'Semántico', 'Datos incompatibles',prod[1], prod.lineno(1)+1, obtenerColumna(prod.lexer.lexdata, prod, 1))
             if var1 != 'String' and var2 != 'String':
                 if len(tipo1) == 2 and len(tipo2) == 2:
-                    prod[1] = tipo1[1]
-                    prod[3] = tipo2[1]
+                    
                     prod[0] = ('condicion', prod[1], prod[2], prod[3])
                 else:
                     agregarError(9, 'Semántico', 'Valor no definido en la variable', prod[3], prod.lineno(3)+1,obtenerColumna(prod.lexer.lexdata, prod, 3))
